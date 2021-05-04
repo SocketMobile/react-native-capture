@@ -1,0 +1,54 @@
+{
+  "name": "react-native-capture",
+  "title": "React Native Capture",
+  "version": "1.0.0",
+  "description": "Socket Mobile Capture SDK for React Native",
+  "main": "index.js",
+  "files": [
+    "README.md",
+    "android",
+    "index.js",
+    "ios",
+    "react-native-capture.podspec"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SocketMobile/react-native-capture.git",
+    "baseUrl": "https://github.com/SocketMobile/react-native-capture"
+  },
+  "keywords": [
+    "react-native",
+    "data capture",
+    "barcode",
+    "scanner",
+    "nfc",
+    "rfid",
+    "reader/writer",
+    "reader",
+    "writer",
+    "bluetooth",
+    "BLE",
+    "QRCode"
+  ],
+  "author": {
+    "name": "Socket Mobile",
+    "email": "sdksupport@socketmobile.com"
+  },
+  "license": "Socket Mobile, inc.",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-native": ">=0.60.0-rc.0 <1.0.x"
+  },
+  "devDependencies": {
+    "react": "^17.0.2",
+    "react-native": "^0.64.0"
+  },
+  "dependencies": {
+    "socketmobile-capturejs": "^1.0.1"
+  }
+}
