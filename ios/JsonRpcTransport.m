@@ -1,5 +1,5 @@
 #import "JsonRpcTransport.h"
-#import "SKTCapture.h"
+#import "CaptureSDK.h"
 
 @interface JsonRpcTransport () <SKTCaptureDelegate> {
     SKTCapture* _capture;
