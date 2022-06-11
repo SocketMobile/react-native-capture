@@ -21,6 +21,6 @@ Pod::Spec.new do |s|
 
   s.dependency "React"
   # ...
-  s.dependency "CaptureSDK", "~>1.4"
+  s.dependency "CaptureSDK", "1.4.33"
 end
 
