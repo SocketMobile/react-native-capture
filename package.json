@@ -1,8 +1,8 @@
 {
   "name": "react-native-capture",
   "title": "React Native Capture",
-  "version": "1.0.14",
-  "description": "Socket Mobile Capture SDK for React Native",
+  "version": "1.0.38",
+  "description": "Socket Mobile CaptureSDK for React Native",
   "main": "index.js",
   "files": [
     "README.md",
