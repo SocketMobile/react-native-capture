@@ -108,6 +108,13 @@ export default class App extends Component<{}> {
 };
 ```
 
+# Devices compatibility and CaptureSDK versions
+|       Devices                                          |          < 1.3         |          1.3           |
+| :----------------------------------------------------: | :--------------------: | :--------------------: | 
+|   **SocketCam C820**                                   |          ❌            |           ❌            |
+|   **S720/D720/S820**                                   |          ❌            |           ✅            |
+|   **D600, S550, and all other barcode scanners**       |          ✅            |           ✅            |
+
 ## Documentation
 
 More documentation available at [Socket online documentation](https://docs.socketmobile.com/capturejs/en/latest/ "docs.socketmobile.com").

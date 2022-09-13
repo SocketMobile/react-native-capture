@@ -83,9 +83,22 @@ class CaptureRn extends Capture {
   open(appInfo, callback, options) {
     const finalOptions = getOptions(Platform, options, this.logger);
     if(Platform.OS === 'android'){
-      return this.openForAndroid(10, appInfo, callback, options);
+      var newAppInfo = genAppInfo(appInfo, true)
+      return this.openForAndroid(10, newAppInfo, callback, options);
     }
-    return super.open(appInfo, callback, finalOptions);
+    var newAppInfo = genAppInfo(appInfo)
+    return super.open(newAppInfo, callback, finalOptions);
+  }
+}
+
+const genAppInfo = (appInfo, isAndroid) =>{
+  var id = isAndroid ? 'appIdAndroid' : 'appIdIos'
+  var key = isAndroid ? 'appKeyAndroid' : 'appKeyIos'
+  
+  return {
+    ...appInfo, 
+    appId: appInfo[id] || appInfo.appId, 
+    appKey: appInfo[key] || appInfo.appKey
   }
 }
 
