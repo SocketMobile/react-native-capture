@@ -1,5 +1,6 @@
 #import "JsonRpcTransport.h"
 #import <CaptureSDK/CaptureSDK.h>
+#import <React/RCTUtils.h>
 
 @interface JsonRpcTransport () <SKTCaptureDelegate> {
     SKTCapture* _capture;
@@ -107,9 +108,11 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
         appInfo.DeveloperID = [params objectForKey:@"developerId"];
         appInfo.AppKey = [params objectForKey:@"appKey"];
         if(_capture == nil){
+            NSLog(@"ITS NIL");
             _capture = [[SKTCapture alloc]initWithDelegate:self];
         }
         else {
+            NSLog(@"ITS NOT NIL");
             [_capture setDelegate:self];
         }
         [_capture openWithAppInfo:appInfo completionHandler:^(SKTResult result) {
@@ -280,7 +283,7 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
                 response = [JsonRpcTransport returnJsonRpcWithHandle:handle withProperty: property withId:jsonRpcId];
             }
             else {
-                response = [JsonRpcTransport returnJsonRpcWithError:result withMessage:@"failed to get a property" withId:jsonRpcId];
+                response = [JsonRpcTransport returnJsonRpcWithError:result withMessage:@"failed to set a property" withId:jsonRpcId];
             }
             if(block != nil){
                 block(response);
@@ -356,6 +359,7 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
 +(SKTCaptureProperty*)ConvertToPropertyFromJsonRpcProperty:(NSDictionary*) jsonRpcProperty {
     NSDictionary* version;
     NSDictionary* dataSource;
+    NSDictionary* socketCamContext;
     SKTCaptureProperty* property = [SKTCaptureProperty new];
     property.ID = [[jsonRpcProperty objectForKey:@"id"] integerValue];
     property.Type = [[jsonRpcProperty objectForKey:@"type"] integerValue];
@@ -395,6 +399,9 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
         case SKTCapturePropertyTypeEnum:
             break;
         case SKTCapturePropertyTypeObject:
+            socketCamContext = [jsonRpcProperty objectForKey: @"value"];
+            socketCamContext = [JsonRpcTransport  InjectRootUiViewIfOverlayProperty:property.ID fromContext: socketCamContext];
+            property.Object = socketCamContext;
             break;
         case SKTCapturePropertyTypeNotApplicable:
         case SKTCapturePropertyTypeLastType:
@@ -407,25 +414,25 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
  Convert a property into a JSON String
  */
 +(NSString*)ConvertToJsonRpcPropertyFromProperty:(SKTCaptureProperty*) property {
-    NSMutableString* jsonRpc = [NSMutableString stringWithFormat: @"{ \"id\": %ld, \"type\": %ld,",property.ID, property.Type];
+    NSMutableString* jsonRpc = [NSMutableString stringWithFormat: @"{ \"id\": %ld, \"type\": %ld",property.ID, property.Type];
     switch(property.Type) {
         case SKTCapturePropertyTypeNone:
             [jsonRpc appendString:@"}"];
             break;
         case SKTCapturePropertyTypeByte:
-            [jsonRpc appendFormat:@"\"value\": %d }",property.ByteValue];
+            [jsonRpc appendFormat:@", \"value\": %d }",property.ByteValue];
             break;
         case SKTCapturePropertyTypeUlong:
-            [jsonRpc appendFormat:@"\"value\": %ld }",property.ULongValue];
+            [jsonRpc appendFormat:@", \"value\": %ld }",property.ULongValue];
             break;
         case SKTCapturePropertyTypeArray:
-            [jsonRpc appendFormat:@"\"value\": %@ }", [JsonRpcTransport ConvertToStringFromData:property.ArrayValue]];
+            [jsonRpc appendFormat:@", \"value\": %@ }", [JsonRpcTransport ConvertToStringFromData:property.ArrayValue]];
             break;
         case SKTCapturePropertyTypeString:
-            [jsonRpc appendFormat:@"\"value\": \"%@\" }",property.StringValue];
+            [jsonRpc appendFormat:@", \"value\": \"%@\" }",property.StringValue];
             break;
         case SKTCapturePropertyTypeVersion:
-            [jsonRpc appendString:@"\"value\": {"];
+            [jsonRpc appendString:@", \"value\": {"];
             [jsonRpc appendFormat:@"\"major\": %ld,",property.Version.Major];
             [jsonRpc appendFormat:@"\"middle\": %ld,",property.Version.Middle];
             [jsonRpc appendFormat:@"\"minor\": %ld,",property.Version.Minor];
@@ -437,7 +444,7 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
             [jsonRpc appendString:@"} }"];
             break;
         case SKTCapturePropertyTypeDataSource:
-            [jsonRpc appendString:@"\"value\": {"];
+            [jsonRpc appendString:@",\"value\": {"];
             [jsonRpc appendFormat:@"\"id\": %ld,",property.DataSource.ID];
             [jsonRpc appendFormat:@"\"flags\": %ld,",property.DataSource.Flags];
             [jsonRpc appendFormat:@"\"name\": \"%@\",",property.DataSource.Name];
@@ -548,6 +555,17 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
         return device;
     }
     return nil;
+}
+
++(NSDictionary*)InjectRootUiViewIfOverlayProperty:(SKTCapturePropertyID)propertyId fromContext: (NSDictionary*)socketCamContext {
+    NSDictionary* ret = socketCamContext;
+    if(propertyId == SKTCapturePropertyIDOverlayViewDevice){
+        UIViewController* mainUiViewController = RCTPresentedViewController();
+        NSMutableDictionary* socketCamContextModif = [NSMutableDictionary dictionaryWithDictionary:socketCamContext];
+        [socketCamContextModif setObject:mainUiViewController forKey:SKTCaptureSocketCamContext];
+        ret = socketCamContextModif;
+    }
+    return ret;
 }
 
 @end
