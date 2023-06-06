@@ -1,6 +1,14 @@
-# react-native-capture
+# react-native-capture 1.3.36
 
 This react native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera (iOS only) to capture and deliver data capture to such application.
+
+# Devices compatibility and CaptureSDK versions
+|       Devices                                          |          <= 1.2        |          1.3           |
+| :----------------------------------------------------: | :--------------------: | :--------------------: |
+|   **SocketCam C820**                                   |          ❌            |           ❌           |
+|   **S720/D720/S820**                                   |          ❌            |           ✅           |
+|   **D600, S550, and all other barcode scanners**       |          ✅            |           ✅           |
+|   **S370**                                             |          ❌            |           ❌           |
 
 ## Getting started
 
@@ -107,13 +115,6 @@ export default class App extends Component<{}> {
 ...
 };
 ```
-
-# Devices compatibility and CaptureSDK versions
-|       Devices                                          |          < 1.3         |          1.3           |
-| :----------------------------------------------------: | :--------------------: | :--------------------: | 
-|   **SocketCam C820**                                   |          ❌            |           ❌            |
-|   **S720/D720/S820**                                   |          ❌            |           ✅            |
-|   **D600, S550, and all other barcode scanners**       |          ✅            |           ✅            |
 
 ## Documentation
 
