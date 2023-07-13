@@ -1,105 +1,204 @@
-import { Platform, NativeEventEmitter, NativeModules } from 'react-native';
-import { Capture, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, SoftScan, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Notifications, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig } from 'socketmobile-capturejs';
+import { Platform, NativeEventEmitter, NativeModules } from "react-native";
+import {
+  Capture,
+  SktErrors,
+  CapturePropertyIds,
+  CapturePropertyTypes,
+  CaptureProperty,
+  CaptureEventIds,
+  CaptureEventTypes,
+  CaptureEvent,
+  CaptureDeviceType,
+  CaptureDataSourceID,
+  CaptureDataSourceFlags,
+  CaptureDataSourceStatus,
+  DataConfirmationMode,
+  DeviceDataAcknowledgment,
+  SecurityMode,
+  Trigger,
+  DeletePairing,
+  SoundActionType,
+  SoundFrequency,
+  RumbleActionType,
+  LocalDecodeAction,
+  DataConfirmationLed,
+  DataConfirmationBeep,
+  DataConfirmationRumble,
+  Flash,
+  SoftScan,
+  PowerState,
+  MonitorDbg,
+  Counter,
+  Disconnect,
+  ProfileSelect,
+  ProfileConfig,
+  Notifications,
+  Timer,
+  DataFormat,
+  TriggerMode,
+  ConnectReason,
+  StartUpRoleSpp,
+  ConnectBeepConfig,
+  StandConfig,
+} from "socketmobile-capturejs";
 
-const { JsonRpcTransport } = NativeModules;
-const eventEmitter = new NativeEventEmitter(JsonRpcTransport);
+const SocketCamTypes = [CaptureDeviceType.SocketCamC820];
+const NFCDeviceTypes = [
+  CaptureDeviceType.ScannerS370,
+  CaptureDeviceType.ScannerS550,
+];
 
-const onCaptureEvent = e => {
-  console.log('index onCaptureEvent: ', e);
-  if(JsonRpcTransport.logger){
-    JsonRpcTransport.logger.log('<= ', e);
+const { NativeCaptureModule } = NativeModules;
+let eventEmitter = new NativeEventEmitter(NativeCaptureModule);
+
+const subscription = eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
+
+const onCaptureEvent = (e) => {
+  // maybe need to access handle here but this one doesn't get called in Android.
+  console.log("index onCaptureEvent: ", e);
+  if (NativeCaptureModule.logger) {
+    NativeCaptureModule.logger.log("<= ", e);
   }
   const event = JSON.parse(e);
-  if(JsonRpcTransport.onNotification) {
-    JsonRpcTransport.onNotification(event);
+  if (NativeCaptureModule.onNotification) {
+    NativeCaptureModule.onNotification(event);
   }
 };
 
-JsonRpcTransport.open = (host, notification) => {
-  console.log('JsonRpcTransport.open callback: ', notification);
-  console.log('JsonRpcTransport.open this: ', this);
-  JsonRpcTransport.onNotification = notification;
-  eventEmitter.subscription = eventEmitter.addListener('onCaptureEvent', onCaptureEvent);
-  return JsonRpcTransport.openTransport(host).then(result => result.transport);
-}
+NativeCaptureModule.open = (host, notification) => {
+  eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
+  NativeCaptureModule.onNotification = notification;
+  console.log(NativeCaptureModule.onNotification);
+  console.log("NativeCaptureModule.open callback: ", notification);
+  console.log("NativeCaptureModule.open this: ", this);
+  return NativeCaptureModule.openTransport(host).then(
+    (result) => result.transport
+  );
+};
 
-JsonRpcTransport.send = (handle, jsonRpc) => {
-  JsonRpcTransport.logger.log('=> ',jsonRpc);
-  return JsonRpcTransport.sendTransport(handle, JSON.stringify(jsonRpc))
-  .then(response => {
-    JsonRpcTransport.logger.log('<= ',response);
+NativeCaptureModule.send = (handle, jsonRpc) => {
+  NativeCaptureModule.logger.log("=> ", jsonRpc);
+  return NativeCaptureModule.sendTransport(
+    handle,
+    JSON.stringify(jsonRpc)
+  ).then((response) => {
+    NativeCaptureModule.logger.log("<= ", response);
     return JSON.parse(response);
   });
-}
+};
 
-JsonRpcTransport.close = (handle) => {
-  eventEmitter.subscription.remove();
-  return JsonRpcTransport.closeTransport(handle);
-}
+NativeCaptureModule.close = (handle) => {
+  console.log("index close");
+  subscription.remove();
+  return NativeCaptureModule.closeTransport(handle);
+};
 
 const getOptions = (platform, options, logger) => {
   const final = options || {};
-  const noLogger = {log:()=>{}};
-  if (platform.OS === 'ios') {
-    JsonRpcTransport.logger = logger || noLogger;
-    final.transport = JsonRpcTransport;
-  }
-  else {
-    JsonRpcTransport.startCaptureService();
+  const noLogger = { log: () => {} };
+  CaptureAppOS = platform.OS;
+  if (platform.OS === "ios") {
+    NativeCaptureModule.logger = logger || noLogger;
+    final.transport = NativeCaptureModule;
+  } else {
+    NativeCaptureModule.startCaptureService();
   }
   return final;
 };
-
-
 
 class CaptureRn extends Capture {
   constructor(logger) {
     super(logger);
   }
-  
+
   openForAndroid(tries, appInfo, callback, options) {
     const promise = new Promise((resolve, reject) => {
       let interval;
       const openRetry = () => {
+        // options comes back undefined
+        // need to access handle here?
         clearInterval(interval);
-        super.open(appInfo, callback, options)
-        .then(result => resolve(result))
-        .catch(err => {
-          console.log('android retry error: ', err);
-          if(tries > 0){
-            tries -= 1;
-            interval = setInterval(openRetry, 250);
-          }
-          else {
-            reject(err);
-          }
-        })
+        super
+          .open(appInfo, callback, options)
+          .then((result) => resolve(result))
+          .catch((err) => {
+            console.log("android retry error: ", err);
+            if (tries > 0) {
+              tries -= 1;
+              interval = setInterval(openRetry, 250);
+            } else {
+              reject(err);
+            }
+          });
       };
       interval = setInterval(openRetry, 250);
     });
     return promise;
-  }  
-  
+  }
+
   open(appInfo, callback, options) {
     const finalOptions = getOptions(Platform, options, this.logger);
-    if(Platform.OS === 'android'){
-      var newAppInfo = genAppInfo(appInfo, true)
+    if (Platform.OS === "android") {
+      var newAppInfo = genAppInfo(appInfo, true);
       return this.openForAndroid(10, newAppInfo, callback, options);
     }
-    var newAppInfo = genAppInfo(appInfo)
+    var newAppInfo = genAppInfo(appInfo);
     return super.open(newAppInfo, callback, finalOptions);
   }
 }
 
-const genAppInfo = (appInfo, isAndroid) =>{
-  var id = isAndroid ? 'appIdAndroid' : 'appIdIos'
-  var key = isAndroid ? 'appKeyAndroid' : 'appKeyIos'
-  
-  return {
-    ...appInfo, 
-    appId: appInfo[id] || appInfo.appId, 
-    appKey: appInfo[key] || appInfo.appKey
-  }
-}
+const genAppInfo = (appInfo, isAndroid) => {
+  var id = isAndroid ? "appIdAndroid" : "appIdIos";
+  var key = isAndroid ? "appKeyAndroid" : "appKeyIos";
 
-export { CaptureRn, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, SoftScan, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Notifications, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig };
+  return {
+    ...appInfo,
+    appId: appInfo[id] || appInfo.appId,
+    appKey: appInfo[key] || appInfo.appKey,
+  };
+};
+
+export {
+  CaptureRn,
+  SktErrors,
+  CapturePropertyIds,
+  CapturePropertyTypes,
+  CaptureProperty,
+  CaptureEventIds,
+  CaptureEventTypes,
+  CaptureEvent,
+  CaptureDeviceType,
+  CaptureDataSourceID,
+  CaptureDataSourceFlags,
+  CaptureDataSourceStatus,
+  DataConfirmationMode,
+  DeviceDataAcknowledgment,
+  SecurityMode,
+  Trigger,
+  DeletePairing,
+  SoundActionType,
+  SoundFrequency,
+  RumbleActionType,
+  LocalDecodeAction,
+  DataConfirmationLed,
+  DataConfirmationBeep,
+  DataConfirmationRumble,
+  Flash,
+  SoftScan,
+  PowerState,
+  MonitorDbg,
+  Counter,
+  Disconnect,
+  ProfileSelect,
+  ProfileConfig,
+  Notifications,
+  Timer,
+  DataFormat,
+  TriggerMode,
+  ConnectReason,
+  StartUpRoleSpp,
+  ConnectBeepConfig,
+  StandConfig,
+  SocketCamTypes,
+  NFCDeviceTypes,
+};
