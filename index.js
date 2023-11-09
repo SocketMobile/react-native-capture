@@ -68,9 +68,6 @@ const onCaptureEvent = (e) => {
 NativeCaptureModule.open = (host, notification) => {
   eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
   NativeCaptureModule.onNotification = notification;
-  console.log(NativeCaptureModule.onNotification);
-  console.log("NativeCaptureModule.open callback: ", notification);
-  console.log("NativeCaptureModule.open this: ", this);
   return NativeCaptureModule.openTransport(host).then(
     (result) => result.transport
   );
