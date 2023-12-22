@@ -1,4 +1,4 @@
-# react-native-capture 1.4.23
+# react-native-capture 1.4.32
 
 This react native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera (iOS only) to capture and deliver data capture to such application.
 
@@ -198,7 +198,26 @@ const App = () => {
 };
 ```
 
-## Upgrading to iOS SDK Version 1.6.39
+## Referencing Socket Mobile's Android SDK
+
+In version `>1.4.23`, we are removing the `android/libs` folder and it's contents. This is because we are now referencing the Socket Mobile Android SDK via the release repo. The developer will need to add two things. First, in their `build.gradle` file, add the below code, in the `repositories` section.
+
+```
+  maven {
+          url "https://bin.socketmobile.com/repo/releases"
+      }
+```
+
+Next, in their `app/gradle.build` file, they will need to add the below code.
+
+```
+  packagingOptions {
+        pickFirst '/lib/arm64-v8a/libc++_shared.so'
+        pickFirst '/lib/armeabi-v7a/libc++_shared.so'
+    }
+```
+
+## Upgrading to iOS SDK Version 1.8.34
 
 I needed to deintegrate pods and then re-install them using `pod install --repo-update`. Doing a regular `pod install` gave me the error the below error.
 

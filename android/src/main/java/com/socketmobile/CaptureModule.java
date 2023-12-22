@@ -19,6 +19,7 @@ import com.socketmobile.capture.socketcam.client.CaptureExtension;
 import com.socketmobile.capture.client.ConnectionState;
 import com.socketmobile.capture.CaptureError;
 import com.socketmobile.capture.troy.ExtensionScope;
+import com.socketmobile.CaptureService;
 
 import static android.content.Intent.FLAG_RECEIVER_FOREGROUND;
 
@@ -107,9 +108,4 @@ public class CaptureModule extends ReactContextBaseJavaModule  {
         }
     };
 
-    Intent getStartIntent() {
-        return new Intent(ACTION)
-                .setFlags(FLAG_RECEIVER_FOREGROUND)
-                .setComponent(new ComponentName(SERVICE_APP_ID, BROADCAST_RECEIVER));
-    }
 }
