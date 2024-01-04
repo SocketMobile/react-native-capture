@@ -49,9 +49,8 @@ const NFCDeviceTypes = [
 ];
 
 const { NativeCaptureModule } = NativeModules;
-let eventEmitter = new NativeEventEmitter(NativeCaptureModule);
 
-const subscription = eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
+let eventEmitter = new NativeEventEmitter(NativeCaptureModule);
 
 const onCaptureEvent = (e) => {
   // maybe need to access handle here but this one doesn't get called in Android.
@@ -65,8 +64,9 @@ const onCaptureEvent = (e) => {
   }
 };
 
+const subscription = eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
+
 NativeCaptureModule.open = (host, notification) => {
-  eventEmitter.addListener("onCaptureEvent", onCaptureEvent);
   NativeCaptureModule.onNotification = notification;
   return NativeCaptureModule.openTransport(host).then(
     (result) => result.transport
@@ -85,7 +85,6 @@ NativeCaptureModule.send = (handle, jsonRpc) => {
 };
 
 NativeCaptureModule.close = (handle) => {
-  console.log("index close");
   subscription.remove();
   return NativeCaptureModule.closeTransport(handle);
 };
@@ -112,8 +111,6 @@ class CaptureRn extends Capture {
     const promise = new Promise((resolve, reject) => {
       let interval;
       const openRetry = () => {
-        // options comes back undefined
-        // need to access handle here?
         clearInterval(interval);
         super
           .open(appInfo, callback, options)

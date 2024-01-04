@@ -68,9 +68,10 @@ repositories {
 
 dependencies {
     //noinspection GradleDynamicVersion
-    implementation fileTree(dir: "libs", include: ["*.aar", "*.jar"])
+    // implementation fileTree(dir: "libs", include: ["*.aar", "*.jar"])
     implementation 'com.facebook.react:react-native:+'  // From node_modules
     implementation 'com.google.zxing:core:3.5.1'
+    implementation 'com.socketmobile:capture-socketcam:1.7.39'
 }
 
 def configureReactNativePom(def pom) {
