@@ -1,16 +1,18 @@
-# react-native-capture 1.4.32
+# react-native-capture 1.4.39
 
 This react native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera (iOS only) to capture and deliver data capture to such application.
 
 # Devices compatibility and CaptureSDK versions
 
-|                    Devices                     | <= 1.2 | 1.3 | 1.4 |
-| :--------------------------------------------: | :----: | :-: | :-: |
-|               **SocketCam C860**               |   ❌   | ❌  | ❌  |
-|               **SocketCam C820**               |   ❌   | ❌  | ✅  |
-|               **S720/D720/S820**               |   ❌   | ✅  | ✅  |
-| **D600, S550, and all other barcode scanners** |   ✅   | ✅  | ✅  |
-|                    **S370**                    |   ❌   | ❌  | ✅  |
+|                    Devices                     | <= 1.2 | 1.3 |   1.4   |
+| :--------------------------------------------: | :----: | :-: | :-----: |
+|               **SocketCam C860**               |   ❌   | ❌  | ✅ [^1] |
+|               **SocketCam C820**               |   ❌   | ❌  |   ✅    |
+|               **S720/D720/S820**               |   ❌   | ✅  |   ✅    |
+| **D600, S550, and all other barcode scanners** |   ✅   | ✅  |   ✅    |
+|                    **S370**                    |   ❌   | ❌  |   ✅    |
+
+[^1]: _SocketCam C860 is currently supported on the latest version of Android only. More on SocketCam can be found [here](https://www.socketmobile.com/readers-accessories/product-families/socketcam)._
 
 ## Getting started
 
@@ -216,6 +218,40 @@ Next, in their `app/gradle.build` file, they will need to add the below code.
         pickFirst '/lib/armeabi-v7a/libc++_shared.so'
     }
 ```
+
+## Enable Start Capture Service on Android
+
+In order enable Start Capture Service on Android (so that the developer does't need to actively run/open Companion on the same device), the developer will need to add some security configurations to allow this service to run in the background of their app.
+
+First, in `your-app/android/app/src/main/res`, there needs to be an `xml` directory if there isn't one already. In that directory, you will need to add the file `network_security_config.xml`. That file should contain the below information.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>
+
+```
+
+Then, in their app's `AndroidManifest.xml` file, the developer will need to add the below property into the `<application>` tag.
+
+```
+android:networkSecurityConfig="@xml/network_security_config"
+```
+
+Finally, add the below line into just before the `AndroidManifest.xml` file's closing `</manifest>` tag.
+
+```
+<queries>
+    <package android:name="com.socketmobile.companion"/>
+  </queries>
+```
+
+For more on the network security configuration for Android, please check out the cleartext section in [the Android docs](https://docs.socketmobile.com/capture/java/en/latest/android/getting-started.html#enable-cleartext-traffic).
 
 ## Upgrading to iOS SDK Version 1.8.34
 

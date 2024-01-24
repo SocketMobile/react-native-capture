@@ -76,9 +76,17 @@ public class CaptureModule extends ReactContextBaseJavaModule  {
 
     @ReactMethod
     public void startCaptureService(Promise promise) {
-        Context context = getReactApplicationContext();
-        context.sendBroadcast(getStartIntent());
-        promise.resolve(null);
+        try {
+            Context context = getReactApplicationContext();
+            String serviceStarted = CaptureService.start(context);
+            if (serviceStarted.indexOf("success") != -1){
+                promise.resolve(serviceStarted);
+            } else {
+                promise.resolve("Could not start capture service.");
+            }
+        } catch (Exception e) {
+            promise.reject("CAPTURE_SERVICE_ERROR", "Error starting capture service", e);
+        }
     }
 
     public void createExtensionEventAndTrigger(String message, int status){
