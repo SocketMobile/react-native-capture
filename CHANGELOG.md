@@ -2,6 +2,23 @@
 
 This file tracks released versions with the changes made to this project.
 
+## Version 1.5.86
+
+### New
+
+- Added the support of SocketCam C820 or SocketCam C860 custom sized view on Android and iOS that the developer can import from `react-native-capturesdk`.
+- Added the `SocketCamViewContainer` component that the developer can import from `react-native-capturesdk`.
+  - `SocketCamViewContainer` handles much of the SocketCam logic, like starting the SocketCam extension on Android, checking whether or not SocketCam is enabled, and setting the trigger type based on a provided value.
+- Added the first iteration of `CaptureHelper` that the developer can import from `react-native-capturesdk`.
+  - `CaptureHelper` contains useful functions related to SocketCam for the developer to use so they no longer have to build them from scratch.
+- For Android: added a template for providing your own custom view, which includes a layout file to serve as the layout container for `SocketCamFragment`, as well as other Kotlin files specific to the custom view's package, view manager, custom view itself and the associated custom view activity. You can read more about custom views [here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCamCustom.html).
+- Updated documentation to include information related to `SocketCamViewContainer`, how to implement custom views for Android and iOS, `CaptureHelper`, and how to enable/disable a symbology.
+
+### Improvements
+
+- Removed any reference of/need for `NativeModules`, `DeviceEventEmitter`, getting whether or not SocketCam is enabled, or setting the SocketCam trigger from the example app. 
+  - Introduction of the`SocketCamViewContainer` component means the previous Native Module logic is now handled exclusively in the React Native CaptureSDK.
+
 ## Version 1.5.64
 
 ### Fixed
