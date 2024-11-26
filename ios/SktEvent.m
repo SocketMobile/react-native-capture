@@ -55,7 +55,6 @@ NSMutableDictionary* gNamedEvent=nil;
  *
  */
 -(SKTResult)createEvent:(BOOL)automatic{
-    NSLog(@"IN CREATE");
     SKTResult result=SKTCaptureE_NOERROR;
     if(_eventInfo!=nil)
         result=SKTCaptureE_ALREADYEXISTING;
@@ -130,8 +129,6 @@ NSMutableDictionary* gNamedEvent=nil;
 
 -(SKTResult)setEvent{
     SKTResult result=SKTCaptureE_NOERROR;
-    NSLog(@"IN SET EVENT");
-    NSLog(@"EVENT INFO: %@", _eventInfo);
     if(_eventInfo!=nil){
         [_eventInfo.lock lock];
         _eventInfo.signaled=YES;
@@ -157,10 +154,7 @@ NSMutableDictionary* gNamedEvent=nil;
 
 -(SKTResult)waitEvent:(long)milliseconds{
     SKTResult result=SKTCaptureE_NOERROR;
-    NSLog(@"IN WAIT EVENT");
-    NSLog(@"EVENT INFO: %@", _eventInfo);
     if(_eventInfo!=nil){
-         NSLog(@"EVENT INFO SIGNALED: %d",_eventInfo.signaled);
         if(_eventInfo.signaled==NO){
 //            NSAutoreleasePool *localPool = [[NSAutoreleasePool alloc] init];
             @autoreleasepool {

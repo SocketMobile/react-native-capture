@@ -1,0 +1,4 @@
+yarn.lock
+#this us needed for compilation but not for the NPM package itself.
+src
+.npmrc
