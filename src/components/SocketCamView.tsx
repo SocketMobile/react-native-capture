@@ -16,8 +16,13 @@ interface HandleResultArgs {
   isError?: boolean;
 }
 
+export interface AndroidCustomViewProps {
+  customViewHandle: string | null;
+}
+
 interface SocketCamViewProps extends SocketCamViewContainerProps {
   socketCamDeviceForView: CaptureDeviceInfo;
+  androidSocketCamCustomView?: React.ReactElement<AndroidCustomViewProps>;
 }
 
 const SocketCamView: React.FC<SocketCamViewProps> = ({

@@ -6,12 +6,13 @@ import {
   type ExtensionEventData,
 } from 'react-native-capture';
 import { type SocketCamViewContainerProps } from '../interfaces';
-import SocketCamView from './SocketCamView';
+import SocketCamView, { type AndroidCustomViewProps } from './SocketCamView';
 
 const SocketCamViewContainer: React.FC<SocketCamViewContainerProps> = ({
   openSocketCamView,
   handleSetSocketCamExtensionStatus,
   socketCamDevice,
+  androidSocketCamCustomView,
   ...props
 }) => {
   const startSocketCamExtension = (
@@ -57,7 +58,6 @@ const SocketCamViewContainer: React.FC<SocketCamViewContainerProps> = ({
       clientOrDeviceHandle,
       socketCamCapture,
       handleSetSocketCamEnabled,
-      androidSocketCamCustomView,
       handleSetStatus,
     } = props;
     if (Platform.OS === 'android') {
@@ -81,7 +81,8 @@ const SocketCamViewContainer: React.FC<SocketCamViewContainerProps> = ({
         <SocketCamView
           openSocketCamView={openSocketCamView}
           socketCamDevice={socketCamDevice}
-          socketCamDeviceForView={socketCamDevice}
+          socketCamDeviceForView={socketCamDevice!}
+          androidSocketCamCustomView={androidSocketCamCustomView as React.ReactElement<AndroidCustomViewProps>}
           {...props}
         />
       ) : null}

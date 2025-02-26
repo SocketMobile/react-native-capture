@@ -2,6 +2,19 @@
 
 This file tracks released versions with the changes made to this project.
 
+## Version 1.5.124
+
+### Improvements
+
+- Updated `react-native` to support `v0.78.0`.
+- Updated `react` to support `v19.0.0`.
+- Updated the [iOS CaptureSDK](https://github.com/SocketMobile/cocoapods-capturesdk) to `v1.9.100`.
+
+### Fixed
+
+- Some mistakes in documentation have been fixed.
+- iOS native module doesn't include the new architecture directive flag anymore. [Github issue #10](https://github.com/SocketMobile/react-native-capture/issues/10).
+
 ## Version 1.5.111
 
 ### New

@@ -1,4 +1,4 @@
-# React Natice CaptureSDK - Version 1.5.111
+# React Natice CaptureSDK - Version 1.5.124
 
 This react native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera to capture and deliver data capture to such application.
 
