@@ -2,6 +2,17 @@
 
 This file tracks released versions with the changes made to this project.
 
+## Version 1.5.130
+
+### Improvements
+
+- Updated the [iOS CaptureSDK](https://github.com/SocketMobile/cocoapods-capturesdk) to `v1.9.139`.
+- On iOS, you can get the `tagId` data so you can get the NFC Tag ID
+
+### Fixed
+
+- The [issue](https://github.com/SocketMobile/react-native-capture/issues/12) has been fixed.
+
 ## Version 1.5.124
 
 ### Improvements

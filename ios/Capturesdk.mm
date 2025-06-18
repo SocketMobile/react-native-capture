@@ -522,12 +522,16 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             [json appendString:@", \"value\": {"];
             [json appendFormat:@"\"data\": %@,", [self ConvertToStringFromData:event.Data.DecodedData.DecodedData]];
             [json appendFormat:@"\"id\": %ld,", (long)event.Data.DecodedData.DataSourceID];
-           
-            if ((long)event.Data.DecodedData.DataSourceID == SKTCaptureDataSourceIDNotSpecified ) { 
+
+            if (event.Data.DecodedData.TagIdData.length > 0) {
+              [json appendFormat:@" \"tagId\": \"%@\",", [self stringFromTagIdData:event.Data.DecodedData.TagIdData]];
+            }
+
+            if ((long)event.Data.DecodedData.DataSourceID == SKTCaptureDataSourceIDNotSpecified) {
                 [json appendFormat:@"\"name\": \"%s\"}}", ""];
                 [json appendFormat:@", \"result\": \"%ld\"}", (long)SKTCaptureE_CANCEL];
             } else {
-                [json appendFormat:@"\"name\": \"%@\"}}}", event.Data.DecodedData.DataSourceName];
+                [json appendFormat:@" \"name\": \"%@\"}}}", event.Data.DecodedData.DataSourceName];
             }
             break;
         case SKTCaptureEventDataTypeDeviceInfo:
@@ -566,6 +570,17 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
     [stringData appendString:@"]"];
     return stringData;
 }
+
+-(NSString *)stringFromTagIdData:(NSData *)tagIdData {
+    const unsigned char *bytes = (const unsigned char *)tagIdData.bytes;
+    NSMutableString *hexString = [NSMutableString stringWithCapacity:tagIdData.length * 2];
+    for (NSUInteger i = 0; i < tagIdData.length; i++) {
+        [hexString appendFormat:@"%02X", bytes[i]];
+    }
+
+    return hexString;
+}
+
 #pragma mark - Capture Helper Notifications
 
 
