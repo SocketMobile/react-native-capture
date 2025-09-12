@@ -1,7 +1,8 @@
 
 #import <React/RCTBridgeModule.h>
 #import <React/RCTEventEmitter.h>
+#import "CaptureSdkSpec.h"
 
-@interface CaptureSdk : RCTEventEmitter <RCTBridgeModule>
+@interface CaptureSdk : RCTEventEmitter <CaptureSdkSpec>
 
 @end

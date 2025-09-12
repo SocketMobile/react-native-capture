@@ -23,6 +23,17 @@
 
 RCT_EXPORT_MODULE(CaptureSdk)
 
++ (void)initialize {
+    if (self == [CaptureSdk class]) {
+#if RCT_NEW_ARCH_ENABLED
+        NSLog(@"✅ CaptureSdk (iOS): NEW ARCHITECTURE enabled - TurboModule support active");
+#else
+        NSLog(@"⚠️ CaptureSdk (iOS): LEGACY ARCHITECTURE - using Bridge module");
+#endif
+    }
+}
+
+
 - (NSArray<NSString *> *)supportedEvents {
     return @[@"onCaptureEvent"];
 }
@@ -93,9 +104,11 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
         UIView *targetView = [self.bridge.uiManager viewForReactTag:reactTag];
-        self->socketCamView.frame = targetView.bounds;
-        self->socketCamView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [targetView addSubview: self->socketCamView];
+        if (targetView && self->socketCamView) {
+            self->socketCamView.frame = targetView.bounds;
+            self->socketCamView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            [targetView addSubview: self->socketCamView];
+        }
     });
 }
 

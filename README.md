@@ -1,6 +1,16 @@
-# React Natice CaptureSDK - Version 1.5.130
+# React Natice CaptureSDK - Version 1.5.134
 
 This react native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera to capture and deliver data capture to such application.
+
+The React Native CaptureSDK now supports fully the new architecture !
+
+## From 31st of July 2025 - Noticeable change from version 1.9.166
+
+**From version 1.9.166 on iOS CaptureSDK:**
+
+**- Users who want to use our Bluetooth LE readers, will have to install the [Socket Mobile Companion app](https://apps.apple.com/app/socket-mobile-companion/id1175638950) which takes care of the discovery and the selection of the reader to connect to.**
+
+**- If you still want to use the notion of favorites with our BLE Device Manager, you can use the version 1.9.157. A future version of CaptureSDK will be available to support both worlds (favorites and Companion app).**
 
 ## Devices compatibility and CaptureSDK versions
 
@@ -54,7 +64,7 @@ Once you import this component, it can be used in your app like so.
   />
 ```
 
-SocketCam in your React Native app, you can check out the docs [here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCam.html 'docs.socketmobile.com'). For more information specifically about `SocketCamViewContainer`, you read more [here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCam.html#socketcamviewcontainer.html 'docs.socketmobile.com').
+SocketCam in your React Native app, [you can check out the docs here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCam.html 'docs.socketmobile.com'). For more information specifically about `SocketCamViewContainer`, [you can read more here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCam.html#socketcamviewcontainer.html 'docs.socketmobile.com').
 
 ## Custom View finder for SocketCam
 
@@ -62,7 +72,7 @@ The latest version of the React Native CaptureSDK also offers support for custom
 
 On Android, you can customize SocketCam by passing a React Native component to the `androidSocketCamCustomView` prop. You will also need to provide your own layout, native view manager, and custom activity.
 
-For more on using custom views for SocketCam, you can read the docs [here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCamCustom.html 'docs.socketmobile.com').
+For more on using custom views for SocketCam, [you can read the docs here](https://docs.socketmobile.com/react-native-capture/en/latest/socketCamCustom.html 'docs.socketmobile.com').
 
 ## Referencing Socket Mobile's Android CaptureSDK
 

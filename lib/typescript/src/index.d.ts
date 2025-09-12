@@ -37,6 +37,36 @@ declare class CaptureRn extends Capture {
     openForAndroid(tries: number, appInfo: AppInfo, callback: Notification, options: any): Promise<number>;
     open(appInfo: AppInfoRn, callback: Notification, options?: any): Promise<number>;
 }
+declare const CaptureArchitectureInfo: {
+    isUsingNewArchitecture: () => boolean;
+    isUsingTurboModule: () => boolean;
+    getArchitectureInfo: () => {
+        architecture: string;
+        usingTurboModule: boolean;
+        usingBridge: boolean;
+        moduleType: string;
+        platform: "ios" | "android" | "windows" | "macos" | "web";
+        reactNativeVersion: {
+            major: number;
+            minor: number;
+            patch: number;
+            prerelease?: string | null | undefined;
+        };
+    };
+    logArchitectureInfo: () => {
+        architecture: string;
+        usingTurboModule: boolean;
+        usingBridge: boolean;
+        moduleType: string;
+        platform: "ios" | "android" | "windows" | "macos" | "web";
+        reactNativeVersion: {
+            major: number;
+            minor: number;
+            patch: number;
+            prerelease?: string | null | undefined;
+        };
+    };
+};
 interface CaptureDeviceInfo extends CaptureRn {
     guid: string;
     name: string;
@@ -45,6 +75,6 @@ interface CaptureDeviceInfo extends CaptureRn {
     devCapture: CaptureRn;
 }
 export { CaptureRn, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, JRpcError, SocketCam, SocketCamTypes, BluetoothLEDeviceTypes, SocketCamViewContainer, CaptureSdk, // Native Modules
-CaptureHelper, };
+CaptureHelper, CaptureArchitectureInfo, };
 export type { Notification, DeviceInfo, AppInfoRn, DeviceGuidMap, DecodedData, ExtensionEventData, CaptureDeviceInfo, SocketLogger, };
 //# sourceMappingURL=index.d.ts.map

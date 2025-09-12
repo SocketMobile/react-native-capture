@@ -17,6 +17,19 @@ import com.socketmobile.capture.troy.ExtensionScope
 @ReactModule(name = "CaptureSdk")
 class CaptureSdkModule(private val reactContext: ReactApplicationContext) :
         ReactContextBaseJavaModule(reactContext) {
+    
+    companion object {
+        const val NAME = "CaptureSdk"
+        private val TAG = CaptureSdkModule::class.java.name
+        private const val BASE_PACKAGE = "com.socketmobile.capture"
+        private const val SERVICE_APP_ID = "com.socketmobile.companion"
+        private const val BROADCAST_RECEIVER = BASE_PACKAGE + ".StartService"
+        private const val ACTION = BASE_PACKAGE + ".START_SERVICE"
+    }
+    
+    init {
+        Log.i(NAME, "⚠️ CaptureSdk (Android): LEGACY ARCHITECTURE - Bridge module initialized")
+    }
     private var mCaptureExtension: CaptureExtension? = null
     private var customDeviceHandle: Int? = null
     private var onDeviceHandleReady: ((Int?) -> Unit)? = null
@@ -44,7 +57,7 @@ class CaptureSdkModule(private val reactContext: ReactApplicationContext) :
     }
 
     override fun getName(): String {
-        return "CaptureSdk"
+        return NAME
     }
 
     @ReactMethod
@@ -138,11 +151,4 @@ class CaptureSdkModule(private val reactContext: ReactApplicationContext) :
                 }
             }
 
-    companion object {
-        private val TAG = CaptureSdkModule::class.java.name
-        private const val BASE_PACKAGE = "com.socketmobile.capture"
-        private const val SERVICE_APP_ID = "com.socketmobile.companion"
-        private const val BROADCAST_RECEIVER = BASE_PACKAGE + ".StartService"
-        private const val ACTION = BASE_PACKAGE + ".START_SERVICE"
-    }
 }

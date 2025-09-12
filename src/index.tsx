@@ -1,4 +1,5 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native';
+import NativeCaptureSdk from './NativeCaptureSdk';
 
 import SocketCamViewContainer from './components/SocketCamViewContainer';
 
@@ -58,16 +59,31 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo Go\n';
 
-const CaptureSdk = NativeModules.CaptureSdk
-  ? NativeModules.CaptureSdk
-  : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
-      }
-    );
+// Use TurboModule for new architecture, fallback to legacy for old architecture
+const CaptureSdk = (() => {
+  // Try to get TurboModule first (new architecture)
+  if (NativeCaptureSdk) {
+    console.log('CaptureSdk: Using NEW ARCHITECTURE (TurboModule) ✅');
+    return NativeCaptureSdk;
+  }
+  
+  // Fallback to legacy bridge module (old architecture)
+  if (NativeModules.CaptureSdk) {
+    console.log('⚠️  CaptureSdk: Using LEGACY ARCHITECTURE (Bridge)');
+    return NativeModules.CaptureSdk;
+  }
+  
+  // If neither is available, return proxy that throws linking error
+  console.error('CaptureSdk: No module found - check linking');
+  return new Proxy(
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
+      },
+    }
+  );
+})();
 
 declare type Notification = (event: CaptureEvent<any>, handle?: number) => void;
 
@@ -121,40 +137,61 @@ const BluetoothLEDeviceTypes = [
 
 const onCaptureEvent = (e: CaptureEvent<string>) => {
   // maybe need to access handle here but this one doesn't get called in Android.
-  console.log('index onCaptureEvent: ', e);
-  console.log('<= ', e);
+  console.log('index onCaptureEvent <= ', e);
   const event = JSON.parse(e.toString());
   if (CaptureSdk.onNotification) {
     CaptureSdk.onNotification(event);
   }
 };
 
-let captureEventEmitter = new NativeEventEmitter(CaptureSdk);
+// Create event emitter with proper fallback handling
+let captureEventEmitter: NativeEventEmitter;
+let subscription: any;
 
-const subscription = captureEventEmitter.addListener(
-  'onCaptureEvent',
-  onCaptureEvent
-);
-
-CaptureSdk.open = (host: String, notification: Function) => {
-  CaptureSdk.onNotification = notification;
-  return CaptureSdk.openTransport(host).then((result: any) => result.transport);
-};
-
-CaptureSdk.send = (handle: number, jsonRpc: JsonRpc) => {
-  console.log('=> ', jsonRpc);
-  return CaptureSdk.sendTransport(handle, JSON.stringify(jsonRpc)).then(
-    (response: JRpcResponse<any>) => {
-      console.log('<= ', response);
-      return JSON.parse(response.toString());
-    }
+try {
+  // For new architecture, events are handled differently
+  if (NativeCaptureSdk) {
+    captureEventEmitter = new NativeEventEmitter(CaptureSdk as any);
+  } else {
+    captureEventEmitter = new NativeEventEmitter(CaptureSdk);
+  }
+  
+  subscription = captureEventEmitter.addListener(
+    'onCaptureEvent',
+    onCaptureEvent
   );
-};
+} catch (error) {
+  console.warn('Failed to create event emitter for CaptureSdk:', error);
+  // Create a dummy subscription that can be safely removed
+  subscription = { remove: () => {} };
+}
 
-CaptureSdk.close = (handle: number) => {
-  subscription.remove();
-  return CaptureSdk.closeTransport(handle);
-};
+// Extend CaptureSdk with legacy compatibility methods
+if (!CaptureSdk.open) {
+  (CaptureSdk as any).open = (host: String, notification: Function) => {
+    (CaptureSdk as any).onNotification = notification;
+    return CaptureSdk.openTransport(host).then((result: any) => result.transport);
+  };
+}
+
+if (!CaptureSdk.send) {
+  (CaptureSdk as any).send = (handle: number, jsonRpc: JsonRpc) => {
+    console.log('=> ', jsonRpc);
+    return CaptureSdk.sendTransport(handle, JSON.stringify(jsonRpc)).then(
+      (response: JRpcResponse<any>) => {
+        console.log('<= ', response);
+        return JSON.parse(response.toString());
+      }
+    );
+  };
+}
+
+if (!CaptureSdk.close) {
+  (CaptureSdk as any).close = (handle: number) => {
+    subscription.remove();
+    return CaptureSdk.closeTransport(handle);
+  };
+}
 
 const getOptions = (
   platform: Platform,
@@ -163,10 +200,16 @@ const getOptions = (
 ) => {
   const final = options || {};
   if (platform.OS === 'ios') {
-    CaptureSdk.logger = logger || noLogger;
+    // Set logger if CaptureSdk supports it (legacy compatibility)
+    if (CaptureSdk && typeof CaptureSdk === 'object') {
+      (CaptureSdk as any).logger = logger || noLogger;
+    }
     final.transport = CaptureSdk;
   } else {
-    CaptureSdk.startCaptureService();
+    // Start capture service for Android
+    if (CaptureSdk.startCaptureService) {
+      CaptureSdk.startCaptureService();
+    }
   }
   return final;
 };
@@ -227,6 +270,37 @@ const genAppInfo = (appInfo: AppInfoRn, isAndroid: boolean) => {
   } as AppInfo;
 };
 
+// Architecture detection utility
+const CaptureArchitectureInfo = {
+  isUsingNewArchitecture: () => {
+    return !!NativeCaptureSdk;
+  },
+  
+  isUsingTurboModule: () => {
+    return !!NativeCaptureSdk;
+  },
+  
+  getArchitectureInfo: () => {
+    const isNewArch = !!NativeCaptureSdk;
+    const hasLegacyModule = !!NativeModules.CaptureSdk;
+    
+    return {
+      architecture: isNewArch ? 'new' : 'legacy',
+      usingTurboModule: isNewArch,
+      usingBridge: !isNewArch && hasLegacyModule,
+      moduleType: isNewArch ? 'TurboModule' : 'Bridge',
+      platform: Platform.OS,
+      reactNativeVersion: Platform.constants.reactNativeVersion,
+    };
+  },
+  
+  logArchitectureInfo: () => {
+    const info = CaptureArchitectureInfo.getArchitectureInfo();
+    console.log('CaptureSdk Architecture Info:', info);
+    return info;
+  },
+};
+
 // interface to more easily identify device captures from root captures
 // and allow device captures to contain device info useful in UI, such as
 // identifying different devices in a list, rendering device names, etc.
@@ -285,6 +359,8 @@ export {
   CaptureSdk, // Native Modules
   // These are the helper methods for the Developer (currently pertains to SocketCam helpers only).
   CaptureHelper,
+  // Architecture detection utility
+  CaptureArchitectureInfo,
 };
 
 export type {

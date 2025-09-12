@@ -103,8 +103,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.zxing:core:3.5.1"
     api "com.socketmobile:capture-socketcam:1.8.21"
+    
+    // New Architecture (TurboModule) dependencies
+    if (isNewArchitectureEnabled()) {
+        implementation "com.facebook.react:react-android:+"
+        implementation "androidx.annotation:annotation:1.6.0"
+    }
 }
-
-
-
-
