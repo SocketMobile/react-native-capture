@@ -36,7 +36,6 @@ class CaptureSdkModule(private val reactContext: ReactApplicationContext) :
 
     inner class SocketCamExtensionEvent(var message: String, var status: Int)
 
-    @ReactMethod
     fun triggerEvent(ev: SocketCamExtensionEvent) {
         val eventData = WritableNativeMap()
         eventData.putString("message", ev.message)

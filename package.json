@@ -1,7 +1,7 @@
 {
   "name": "react-native-capture",
   "title": "React Native CaptureSDK",
-  "version": "1.5.134",
+  "version": "1.5.137",
   "description": "Socket Mobile CaptureSDK for React Native",
   "main": "./lib/commonjs/index.js",
   "module": "./lib/module/index.js",
@@ -192,7 +192,7 @@
     ]
   },
   "dependencies": {
-    "socketmobile-capturejs": "^1.3.50"
+    "socketmobile-capturejs": "^1.4.3"
   },
   "codegenConfig": {
     "name": "CaptureSdkSpec",

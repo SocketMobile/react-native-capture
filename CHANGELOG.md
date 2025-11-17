@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 1.5.137
+
+### Improvements
+
+- Updated the [CaptureJS](https://github.com/SocketMobile/socketmobile-capturejs) to `v1.4.3`. Read more about the latest changes on [CaptureJS](https://github.com/SocketMobile/socketmobile-capturejs/releases/tag/1.4.3)
+
+### Fixed
+
+- The [issue #10](https://github.com/SocketMobile/react-native-capture/issues/10) has been fixed. The React Native CaptureSDK now supports fully the new architecture
+- The [issue #17](https://github.com/SocketMobile/react-native-capture/issues/17) has been fixed and our [Android SDK](https://github.com/SocketMobile/android-capturesdk) has been updated to support the 16Kb page
+
 ## Version 1.5.134
 
 ### Improvements
