@@ -4,14 +4,14 @@
 #import <React/RCTUtils.h>
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
+#import "SocketCamContainerView.h"
 
 
 @interface CaptureSdk () <SKTCaptureDelegate>{
 
     SKTCapture *_capture;
-    bool _captureOpened;
     NSMutableDictionary *_devices;
-    bool _hasListeners;
+    BOOL _hasListeners;
     SktEvent *openCompleteEvent;
     UIView *socketCamView;
 
@@ -75,6 +75,9 @@ RCT_EXPORT_METHOD(dismissViewController)
 {
     dispatch_async(dispatch_get_main_queue(), ^{
       self->socketCamView = nil;
+      [[NSNotificationCenter defaultCenter]
+          postNotificationName:kSocketCamViewDismissedNotification
+                        object:nil];
     });
 }
 
@@ -102,6 +105,9 @@ RCT_EXPORT_METHOD(sendTransport:(nonnull NSNumber*)handle jsonRpc:(NSString*)jso
 
 RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
 {
+    // Legacy method kept for API compatibility.
+    // On New Architecture, view embedding is handled by RNSocketCamViewManager
+    // via NSNotification, so this is a no-op on Fabric.
     dispatch_async(dispatch_get_main_queue(), ^{
         UIView *targetView = [self.bridge.uiManager viewForReactTag:reactTag];
         if (targetView && self->socketCamView) {
@@ -157,7 +163,6 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             }
             else{
                 response = [self returnJsonRpcWithError:result withMessage:@"failed to open Capture" withId:jsonRpcId];
-                self->_captureOpened = false;
             }
             if(block != nil){
                 block(response);
@@ -212,7 +217,6 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
                 else{
                     response = [self returnJsonRpcWithError:result withMessage:@"failed to close Capture" withId:jsonRpcId];
                 }
-                self->_captureOpened = false;
                 if(block != nil){
                     block(response);
                 }
@@ -327,10 +331,10 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
         }];
         
     }
-    else if ([method  isEqual: @"waitforevent"]){
+    else if ([method isEqual:@"waitforevent"]){
         NSLog(@"CaptureSDK: waitforevent");
     }
-    else if ([method  isEqual: @"waitforcaptureobject"]){
+    else if ([method isEqual:@"waitforcaptureobject"]){
         NSLog(@"CaptureSDK: waitforcaptureobject");
     }
     else {
@@ -360,12 +364,10 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
     if ([jsonObject isKindOfClass:[NSArray class]])
      {
          NSArray *jsonArray = (NSArray *)jsonObject;
-         NSLog(@"CaptureSDK: jsonArray - %@",jsonArray);
          return jsonArray;
      }
      else {
          NSDictionary *jsonDictionary = (NSDictionary *)jsonObject;
-         NSLog(@"CaptureSDK: jsonDictionary - %@",jsonDictionary);
          return jsonDictionary;
      }
 }
@@ -385,15 +387,11 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
 
 -(NSString*)returnJsonRpcWithHandle:(NSInteger)handle withProperty:(SKTCaptureProperty*) property withId:(NSInteger)jsonRpcId {
     NSString* jsonProperty = [self ConvertToJsonRpcPropertyFromProperty:property];
-    NSString* jsonRpc;
-    jsonRpc = [NSString stringWithFormat:@"{\"jsonrpc\":\"2.0\",\"result\":{\"handle\":%ld, \"property\":%@ },\"id\":%ld}",handle, jsonProperty,jsonRpcId];
-    return jsonRpc;
+    return [NSString stringWithFormat:@"{\"jsonrpc\":\"2.0\",\"result\":{\"handle\":%ld, \"property\":%@ },\"id\":%ld}",handle, jsonProperty,jsonRpcId];
 }
 
 
 -(SKTCaptureProperty*)ConvertToPropertyFromJsonRpcProperty:(NSDictionary*) jsonRpcProperty {
-    NSDictionary* version;
-    NSDictionary* dataSource;
     SKTCaptureProperty* property = [SKTCaptureProperty new];
     property.ID = (SKTCapturePropertyID)[[jsonRpcProperty objectForKey:@"id"] integerValue];
     property.Type = (SKTCapturePropertyType)[[jsonRpcProperty objectForKey:@"type"] integerValue];
@@ -412,23 +410,26 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
         case SKTCapturePropertyTypeString:
             property.StringValue = [jsonRpcProperty objectForKey:@"value"];
             break;
-        case SKTCapturePropertyTypeVersion:
-            version = [jsonRpcProperty objectForKey: @"value"];
-            property.Version.Major = [[version objectForKey: @"major"] integerValue];
-            property.Version.Middle = [[version objectForKey: @"middle"] integerValue];
-            property.Version.Minor = [[version objectForKey: @"minor"] integerValue];
-            property.Version.Build = [[version objectForKey: @"build"] integerValue];
-            property.Version.Year = (int)[[version objectForKey: @"year"] integerValue];
-            property.Version.Month = (int)[[version objectForKey: @"month"] integerValue];
-            property.Version.Hour = (int)[[version objectForKey: @"hour"] integerValue];
-            property.Version.Minute = (int)[[version objectForKey: @"minute"] integerValue];
+        case SKTCapturePropertyTypeVersion: {
+          NSDictionary* version = [jsonRpcProperty objectForKey: @"value"];
+          property.Version.Major = [[version objectForKey: @"major"] integerValue];
+          property.Version.Middle = [[version objectForKey: @"middle"] integerValue];
+          property.Version.Minor = [[version objectForKey: @"minor"] integerValue];
+          property.Version.Build = [[version objectForKey: @"build"] integerValue];
+          property.Version.Year = (int)[[version objectForKey: @"year"] integerValue];
+          property.Version.Month = (int)[[version objectForKey: @"month"] integerValue];
+          property.Version.Hour = (int)[[version objectForKey: @"hour"] integerValue];
+          property.Version.Minute = (int)[[version objectForKey: @"minute"] integerValue];
+        }
             break;
-        case SKTCapturePropertyTypeDataSource:
-            dataSource = [jsonRpcProperty objectForKey: @"dataSource"];
-            property.DataSource.ID = (SKTCaptureDataSourceID)[[dataSource objectForKey:@"id"] integerValue];
-            property.DataSource.Flags = [[dataSource objectForKey:@"flags"] integerValue];
-            property.DataSource.Name = [dataSource objectForKey:@"name"];
-            property.DataSource.Status = (SKTCaptureDataSourceStatus)[[dataSource objectForKey:@"status"] integerValue];
+        case SKTCapturePropertyTypeDataSource: {
+          NSDictionary* dataSource = [jsonRpcProperty objectForKey: @"value"];
+          SKTCaptureDataSource *dataSourceObject = [SKTCaptureDataSource new];
+          dataSourceObject.ID = (SKTCaptureDataSourceID)[[dataSource objectForKey:@"id"] integerValue];
+          dataSourceObject.Flags = [[dataSource objectForKey:@"flags"] integerValue];
+          dataSourceObject.Status = (SKTCaptureDataSourceStatus)[[dataSource objectForKey:@"status"] integerValue];
+          property.DataSource = dataSourceObject;
+        }
             break;
         case SKTCapturePropertyTypeEnum:
             break;
@@ -470,6 +471,7 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             [jsonRpc appendFormat:@"\"build\": %ld,",property.Version.Build];
             [jsonRpc appendFormat:@"\"year\": %d,",property.Version.Year];
             [jsonRpc appendFormat:@"\"month\": %d,",property.Version.Month];
+            [jsonRpc appendFormat:@"\"day\": %d,",property.Version.Day];
             [jsonRpc appendFormat:@"\"hour\": %d,",property.Version.Hour];
             [jsonRpc appendFormat:@"\"minute\": %d",property.Version.Minute];
             [jsonRpc appendString:@"} }"];
@@ -486,20 +488,24 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             [jsonRpc appendString:@"}"];
             // SKTCapturePropertyIDTriggerDevice
             if (property.ID == SKTCapturePropertyIDTriggerDevice) {
+              dispatch_async(dispatch_get_main_queue(), ^{
                 if ([property.Object isKindOfClass:[NSDictionary class]]) {
-                    NSDictionary *socketCamDictionary = (NSDictionary *)property.Object;
-                    NSString *objectType = [socketCamDictionary objectForKey:@"SKTObjectType"];
-                    if ([objectType isEqualToString:@"SKTSocketCamViewControllerType"]) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if ([[socketCamDictionary objectForKey:@"SKTSocketCamViewController"] isKindOfClass:[UIViewController class]]) {
-                                UIViewController* socketCamViewController = (UIViewController *)[socketCamDictionary objectForKey:@"SKTSocketCamViewController"];
-                                if (socketCamViewController != nil) {
-                                    self->socketCamView = socketCamViewController.view;
-                                }
-                            }
-                        });
+                  NSDictionary *socketCamDictionary = (NSDictionary *)property.Object;
+                  NSString *objectType = [socketCamDictionary objectForKey:@"SKTObjectType"];
+                  if ([objectType isEqualToString:@"SKTSocketCamViewControllerType"]) {
+                    if ([[socketCamDictionary objectForKey:@"SKTSocketCamViewController"] isKindOfClass:[UIViewController class]]) {
+                      UIViewController* socketCamViewController = (UIViewController *)[socketCamDictionary objectForKey:@"SKTSocketCamViewController"];
+                      if (socketCamViewController != nil) {
+                        self->socketCamView = socketCamViewController.view;
+                        [[NSNotificationCenter defaultCenter]
+                            postNotificationName:kSocketCamViewReadyNotification
+                                          object:nil
+                                        userInfo:@{@"view": self->socketCamView}];
+                      }
                     }
+                  }
                 }
+              });
             }
         }
             break;
@@ -515,7 +521,6 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
 -(NSString*)ConvertToJsonRpcEventFromEvent:(SKTCaptureEvent*)event fromCapture:(SKTCapture*)capture {
     NSMutableString* json = [NSMutableString stringWithFormat:@"{\"handle\": %ld, \"event\":{ \"id\": %ld, \"type\": %ld",(long)capture, (long)event.ID, (long)event.Data.Type];
     switch(event.Data.Type){
-            
         case SKTCaptureEventDataTypeNone:
             [json appendString:@"}}"];
             break;
@@ -559,13 +564,22 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
                 [json appendString:@"}}}"];
             }
             break;
+        case SKTCaptureEventDataTypeObject:
+            if (event.ID == SKTCaptureEventIDDeviceDiscovered && event.Data.DiscoveredDeviceInfo != nil) {
+                [json appendString:@", \"value\": {"];
+                [json appendFormat:@"\"serviceUuid\": \"%@\", ",event.Data.DiscoveredDeviceInfo.ServiceUuid];
+                [json appendFormat:@"\"identifierUuid\": \"%@\", ",event.Data.DiscoveredDeviceInfo.IdentifierUuid];
+                [json appendFormat:@"\"name\": \"%@\"",event.Data.DiscoveredDeviceInfo.Name];
+                [json appendString:@"}}}"];
+            } else {
+              [json appendString:@"}}}"];
+            }
+            break;
         case SKTCaptureEventDataTypeLastID:
             [json appendString:@"}}"];
             break;
-        default:
-            NSLog(@"CaptureSDK: Default - Data Type Unfound.");
-            break;
     }
+
     return json;
 }
 

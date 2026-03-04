@@ -8,11 +8,11 @@ interface SocketCamModalStyleProps {
 }
 interface SocketCamViewContainerProps {
     clientOrDeviceHandle: number;
-    triggerType: number;
     openSocketCamView: boolean;
     socketCamCapture: CaptureRn;
     socketCamDevice: CaptureDeviceInfo | null | undefined;
     handleSetSocketCamEnabled: Function;
+    triggerType: number;
     myLogger?: SocketLogger;
     handleSetStatus?: Function;
     handleSetSocketCamExtensionStatus?: Function;
@@ -20,27 +20,5 @@ interface SocketCamViewContainerProps {
     socketCamCustomStyle?: StyleProp<ViewStyle>;
     androidSocketCamCustomView?: React.ReactElement;
 }
-interface SocketCamTriggerButtonData {
-    label: string;
-    value: string;
-}
-interface SocketCamStatusSubOption {
-    message: string;
-    buttonText: string;
-    value: any;
-}
-interface SocketCamStatusOption {
-    0?: SocketCamStatusSubOption;
-    1?: SocketCamStatusSubOption;
-}
-interface GetSocketCamEnabledArguments {
-    socketCamCapture: CaptureRn;
-    handleSetSocketCamEnabled: Function;
-    usingAndroidCustomView?: boolean;
-    fromCallback?: boolean;
-}
-interface SetSocketCamEnabledArguments extends GetSocketCamEnabledArguments {
-    enabled: number;
-}
-export type { SocketCamViewContainerProps, SocketCamStatusOption, SocketCamStatusSubOption, SetSocketCamEnabledArguments, GetSocketCamEnabledArguments, SocketCamTriggerButtonData, };
+export type { SocketCamViewContainerProps, };
 //# sourceMappingURL=interfaces.d.ts.map

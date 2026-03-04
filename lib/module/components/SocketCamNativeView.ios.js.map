@@ -1,0 +1,1 @@
+{"version":3,"names":["requireNativeComponent","SocketCamNativeView"],"sourceRoot":"../../../src","sources":["components/SocketCamNativeView.ios.ts"],"mappings":";;AAAA;AACA,SAASA,sBAAsB,QAAQ,cAAc;;AAErD;AACA;AACA;AACA,MAAMC,mBAAmB,GAAGD,sBAAsB,CAAK,iBAAiB,CAAC;AAEzE,eAAeC,mBAAmB","ignoreList":[]}

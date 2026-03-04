@@ -1,10 +1,16 @@
 import React from 'react';
-import { type CaptureDeviceInfo, CaptureRn } from 'react-native-capture';
+import { type CaptureHelperDevice, type DiscoveredDeviceInfo } from 'react-native-capture';
 interface MainViewProps {
-    deviceCapture: CaptureRn | null;
-    setStatus: (status: string) => void;
-    myLogger: any;
-    devices: CaptureDeviceInfo[];
+    devices: CaptureHelperDevice[];
+    bleDiscovery: () => void;
+    classicDiscovery: () => void;
+    onDisconnectDevice: (device: CaptureHelperDevice) => void;
+    onSelectDevice: (device: CaptureHelperDevice) => void;
+    discoveredDevices: DiscoveredDeviceInfo[];
+    onConnectDevice: (device: DiscoveredDeviceInfo) => void;
+    isAndroid?: boolean;
+    socketCamEnabled?: boolean;
+    onToggleSocketCam?: () => void;
 }
 declare const MainView: React.FC<MainViewProps>;
 export default MainView;

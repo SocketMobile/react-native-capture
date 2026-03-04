@@ -11,13 +11,13 @@ Pod::Spec.new do |s|
   s.homepage     = "https://socketmobile.com"
   s.license      = "MIT"
   s.authors      = { "Socket Mobile" => "developers@socketmobile.com" }
-  s.platforms    = { :ios => "13.0" }
+  s.platforms    = { :ios => "15.0" }
   s.source       = { :git => "https://github.com/SocketMobile/react-native-capture.git", :tag => "#{s.version}" }
 
   s.source_files = "ios/**/*.{h,c,m,mm,swift}"
   s.requires_arc = true
 
-  s.dependency 'CaptureSDK', '~>1.9.166'
+  s.dependency 'CaptureSDK', '~>2.0.63'
 
   # Use install_modules_dependencies helper to install the dependencies if React Native version >=0.71.0.
   # See https://github.com/facebook/react-native/blob/febf6b7f33fdb4904669f99d795eba4c0f95d7bf/scripts/cocoapods/new_architecture.rb#L79.

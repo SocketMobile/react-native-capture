@@ -47,11 +47,13 @@ import {
   JRpcResponse,
   JsonRpc,
   type DeviceInfo,
+  type DiscoveredDeviceInfo,
   SocketCam,
   type Logger,
 } from 'socketmobile-capturejs';
 
 import CaptureHelper from './CaptureHelper';
+import { CaptureHelperDevice } from './CaptureHelperDevice';
 
 const LINKING_ERROR =
   `The package 'react-native-capture' doesn't seem to be linked. Make sure: \n\n` +
@@ -124,6 +126,21 @@ const noLogger = {
   error: () => {},
 };
 
+// Enums not yet exported from socketmobile-capturejs main entry — defined here for SDK consumers
+enum BluetoothDiscoveryMode {
+  BluetoothLowEnergy = 1,
+  BluetoothClassic = 2,
+}
+
+enum SinglePartnership {
+  Disable = 0,
+  WebApi = 1,
+  WebUI = 2,
+  Uuid = 3,
+  WebUIPrompt = 4,
+  DeviceId = 5,
+}
+
 const SocketCamTypes = [
   CaptureDeviceType.SocketCamC820,
   CaptureDeviceType.SocketCamC860,
@@ -133,6 +150,7 @@ const BluetoothLEDeviceTypes = [
   CaptureDeviceType.ScannerS320,
   CaptureDeviceType.ScannerS370,
   CaptureDeviceType.ScannerS550,
+  CaptureDeviceType.DeviceS721,
 ];
 
 const onCaptureEvent = (e: CaptureEvent<string>) => {
@@ -301,8 +319,8 @@ const CaptureArchitectureInfo = {
   },
 };
 
-// interface to more easily identify device captures from root captures
-// and allow device captures to contain device info useful in UI, such as
+// interface to more easily identify device captures from root capture
+// and allow device capture to contain device info useful in UI, such as
 // identifying different devices in a list, rendering device names, etc.
 interface CaptureDeviceInfo extends CaptureRn {
   guid: string;
@@ -310,6 +328,17 @@ interface CaptureDeviceInfo extends CaptureRn {
   type: number;
   handle: number;
   devCapture: CaptureRn;
+}
+
+// interface for a discovered device that can be rendered in a list for pairing, etc. 
+// This is separate from CaptureDeviceInfo because it may not have all the same properties (such as handle) until it's paired and opened
+// But it still contains the necessary info to identify and render the device in the UI, such as name, guid, type, etc.
+// and allow device capture to contain device info useful in UI, such as
+// identifying different devices in a list, rendering device names, etc.
+interface CaptureDiscoveredDeviceInfo extends CaptureRn {
+  name: string;
+  identifierUuid: string;
+  serviceUuid: string;
 }
 
 export {
@@ -351,14 +380,17 @@ export {
   StartUpRoleSpp,
   ConnectBeepConfig,
   StandConfig,
+  BluetoothDiscoveryMode,
+  SinglePartnership,
   JRpcError,
   SocketCam,
   SocketCamTypes,
   BluetoothLEDeviceTypes,
   SocketCamViewContainer,
   CaptureSdk, // Native Modules
-  // These are the helper methods for the Developer (currently pertains to SocketCam helpers only).
+  // These are the helper methods for the Developer
   CaptureHelper,
+  CaptureHelperDevice,
   // Architecture detection utility
   CaptureArchitectureInfo,
 };
@@ -366,10 +398,12 @@ export {
 export type {
   Notification,
   DeviceInfo,
+  DiscoveredDeviceInfo,
   AppInfoRn,
   DeviceGuidMap,
   DecodedData,
   ExtensionEventData,
   CaptureDeviceInfo,
+  CaptureDiscoveredDeviceInfo,
   SocketLogger,
 };

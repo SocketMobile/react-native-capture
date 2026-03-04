@@ -1,5 +1,34 @@
 # Changelog
 
+## Version 2.0.11
+
+### New
+
+  * We have added the support of our brand new scanner Bluetooth Low Energy S721
+
+  * We have added a CaptureHelper to abstract our properties and devices objects
+
+
+
+### Improvements
+
+  * We have improved our SocketCam component
+
+  * We have updated [Android CaptureSDK](https://github.com/SocketMobile/android-capturesdk) to `v2.0.1`
+
+  * We have updated [iOS CaptureSDK](https://github.com/SocketMobile/cocoapods-capturesdk) to `v2.0.63`
+
+  * We have updated [CaptureJS](https://github.com/SocketMobile/socketmobile-capturejs) to `v2.0.2`
+
+  * We have updated `react-native` to `v0.83.1` and `react` to `v19.2.0`
+
+
+
+### Bug fixes
+
+  * N/A
+
+
 ## Version 1.5.137
 
 ### Improvements

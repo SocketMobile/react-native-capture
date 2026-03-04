@@ -1,6 +1,7 @@
 import SocketCamViewContainer from './components/SocketCamViewContainer';
-import { Capture, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, type AppInfo, JRpcError, type DeviceInfo, SocketCam, type Logger } from 'socketmobile-capturejs';
+import { Capture, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, type AppInfo, JRpcError, type DeviceInfo, type DiscoveredDeviceInfo, SocketCam, type Logger } from 'socketmobile-capturejs';
 import CaptureHelper from './CaptureHelper';
+import { CaptureHelperDevice } from './CaptureHelperDevice';
 declare const CaptureSdk: any;
 declare type Notification = (event: CaptureEvent<any>, handle?: number) => void;
 interface AppInfoRn {
@@ -28,6 +29,18 @@ interface ExtensionEventData {
 interface SocketLogger extends Logger {
     log: (message: string, arg?: string | object) => void;
     error: (message: string, arg?: string | object) => void;
+}
+declare enum BluetoothDiscoveryMode {
+    BluetoothLowEnergy = 1,
+    BluetoothClassic = 2
+}
+declare enum SinglePartnership {
+    Disable = 0,
+    WebApi = 1,
+    WebUI = 2,
+    Uuid = 3,
+    WebUIPrompt = 4,
+    DeviceId = 5
 }
 declare const SocketCamTypes: number[];
 declare const BluetoothLEDeviceTypes: number[];
@@ -74,7 +87,12 @@ interface CaptureDeviceInfo extends CaptureRn {
     handle: number;
     devCapture: CaptureRn;
 }
-export { CaptureRn, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, JRpcError, SocketCam, SocketCamTypes, BluetoothLEDeviceTypes, SocketCamViewContainer, CaptureSdk, // Native Modules
-CaptureHelper, CaptureArchitectureInfo, };
-export type { Notification, DeviceInfo, AppInfoRn, DeviceGuidMap, DecodedData, ExtensionEventData, CaptureDeviceInfo, SocketLogger, };
+interface CaptureDiscoveredDeviceInfo extends CaptureRn {
+    name: string;
+    identifierUuid: string;
+    serviceUuid: string;
+}
+export { CaptureRn, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, BluetoothDiscoveryMode, SinglePartnership, JRpcError, SocketCam, SocketCamTypes, BluetoothLEDeviceTypes, SocketCamViewContainer, CaptureSdk, // Native Modules
+CaptureHelper, CaptureHelperDevice, CaptureArchitectureInfo, };
+export type { Notification, DeviceInfo, DiscoveredDeviceInfo, AppInfoRn, DeviceGuidMap, DecodedData, ExtensionEventData, CaptureDeviceInfo, CaptureDiscoveredDeviceInfo, SocketLogger, };
 //# sourceMappingURL=index.d.ts.map
