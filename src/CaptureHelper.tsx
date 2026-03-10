@@ -3,6 +3,7 @@ import {
   CapturePropertyTypes,
   CaptureProperty,
   CaptureEventIds,
+  SktErrors,
   SocketCam,
   type CaptureEvent,
   type PowerState,
@@ -20,6 +21,7 @@ import {
 } from 'react-native-capture';
 
 import { CaptureHelperDevice } from './CaptureHelperDevice';
+import { Platform } from 'react-native';
 
 export type { CaptureHelperDevice };
 
@@ -273,7 +275,28 @@ export class CaptureHelper {
       }
 
       case CaptureEventIds.DeviceDiscovered: {
-        this._callbacks.onDiscoveredDevice?.(event.value);
+        if (Platform.OS === 'ios') {
+          this._callbacks.onDiscoveredDevice?.(event.value);
+        } else {
+          // Android: event.value can be either:
+          //   a) A JSON string  → parse it first
+          //   b) A plain object → may use identifierUUID/serviceUUID instead of identifierUuid/serviceUuid
+          let raw: any = event.value;
+          if (typeof raw === 'string') {
+            try {
+              raw = JSON.parse(raw);
+            } catch (e) {
+              this._callbacks.onError?.({ code: SktErrors.ESKT_INCORRECTNUMBEROFPARAMETERS, message: `DeviceDiscovered: invalid parameters — ${e}` });
+              break;
+            }
+          }
+          const discoveredDevice: DiscoveredDeviceInfo = {
+            name: raw.name ?? '',
+            identifierUuid: raw.identifierUUID ?? raw.identifierUuid ?? '',
+            serviceUuid: raw.serviceUUID ?? raw.serviceUuid ?? '',
+          };
+          this._callbacks.onDiscoveredDevice?.(discoveredDevice);
+        }
         break;
       }
 
@@ -426,7 +449,7 @@ export class CaptureHelper {
     return this._setBle(
       CapturePropertyIds.ConnectDiscoveredDevice,
       CapturePropertyTypes.String,
-      device.identifierUuid + ";" + device.serviceUuid
+      Platform.OS === 'android' ? device.identifierUuid : device.identifierUuid + ";" + device.serviceUuid
     );
   }
 
@@ -437,7 +460,12 @@ export class CaptureHelper {
    * event handler, not here — closing before the SDK disconnect corrupts SDK state.
    */
   async removeBleDevice(device: CaptureHelperDevice): Promise<void> {
+    if (Platform.OS === 'android') {
+      const deviceUuid = await this.getDeviceUniqueIdentifier(device.guid);
+      await this._set(CapturePropertyIds.RemoveDevice, CapturePropertyTypes.String, deviceUuid);
+    } else {
       await this._set(CapturePropertyIds.RemoveDevice, CapturePropertyTypes.String, device.guid);
+    }
   }
 
   /** Disconnect from a connected BLE device (by its discovered device info) */
