@@ -59,6 +59,14 @@ android {
     }
   }
 
+  sourceSets {
+    main {
+      if (!isNewArchitectureEnabled()) {
+        java.srcDirs += "src/oldarch"
+      }
+    }
+  }
+
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
   defaultConfig {
@@ -102,7 +110,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.zxing:core:3.5.1"
-    api "com.socketmobile:capture-socketcam:2.0.1"
+    api "com.socketmobile:capture-socketcam:2.0.17"
     
     // New Architecture (TurboModule) dependencies
     if (isNewArchitectureEnabled()) {

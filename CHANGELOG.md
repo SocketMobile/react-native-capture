@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 2.0.13
+## Version 2.0.16
 
 ### New
 
@@ -9,12 +9,15 @@
 
 ### Improvements
 
-  * N/A
+  * We have update [Android CaptureSDK to 2.0.17](https://github.com/SocketMobile/android-capturesdk/releases/tag/v2.0.17)
+
+  * We have update [iOS CaptureSDK to 2.0.67](https://github.com/SocketMobile/cocoapods-capturesdk/releases/tag/2.0.67)
+
 
 
 ### Bug fixes
 
-  * We have fixed the connection and disconnection for Bluetoot LE devices on Android
+  * We have fixed a [build error on old React Native architecture](https://github.com/SocketMobile/react-native-capture/issues/20)
 
 
 
