@@ -20,4 +20,4 @@ export interface Spec extends TurboModule {
   removeListeners(count: number): void;
 }
 
-export default TurboModuleRegistry.getEnforcing<Spec>('CaptureSdk');
+export default TurboModuleRegistry.get<Spec>('CaptureSdk');

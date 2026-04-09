@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 2.0.16
+## Version 2.0.24
 
 ### New
 
@@ -9,15 +9,19 @@
 
 ### Improvements
 
-  * We have update [Android CaptureSDK to 2.0.17](https://github.com/SocketMobile/android-capturesdk/releases/tag/v2.0.17)
+  * We have added the power timers off for our Bluetooth LE devices
 
-  * We have update [iOS CaptureSDK to 2.0.67](https://github.com/SocketMobile/cocoapods-capturesdk/releases/tag/2.0.67)
+  * We have added more description in our CaptureHelper
+
+  * We have updated [iOS CaptureSDK to 2.0.73](https://github.com/SocketMobile/cocoapods-capturesdk/releases/tag/2.0.73)
 
 
 
 ### Bug fixes
 
-  * We have fixed a [build error on old React Native architecture](https://github.com/SocketMobile/react-native-capture/issues/20)
+  * We have fixed the [issue enforcing of the Turbo Modules for iOS](https://github.com/SocketMobile/react-native-capture/issues/25)
+
+  * We have fixed the [issue for data confirmation](https://github.com/SocketMobile/react-native-capture/issues/22)
 
 
 

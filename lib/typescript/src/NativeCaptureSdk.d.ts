@@ -16,6 +16,6 @@ export interface Spec extends TurboModule {
     addListener(eventType: string): void;
     removeListeners(count: number): void;
 }
-declare const _default: Spec;
+declare const _default: Spec | null;
 export default _default;
 //# sourceMappingURL=NativeCaptureSdk.d.ts.map

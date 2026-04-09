@@ -28,17 +28,58 @@ export declare class CaptureHelperDevice {
      */
     readonly devCapture: CaptureAPI;
     constructor(info: CaptureHelperDeviceInfo, capture: CaptureRn);
+    /** Multi-interface device families: each physical device appears as multiple virtual devices */
+    private static readonly _multiInterfaceFamilies;
+    /**
+     * Returns the multi-interface family (array of device types) that the given
+     * device type belongs to, or undefined if it is a single-interface device.
+     */
+    static getMultiInterfaceFamily(deviceType: number): number[] | undefined;
+    private static readonly _bluetoothLowEnergyDeviceTypes;
+    private _isBluetoothLowEnergy;
+    private static _decodeBleTimer;
+    private static _encodeBleTimer;
     private _get;
     private _set;
-    /** Get the device's friendly (display) name */
+    /**
+     * Get the device's friendly (display) name.
+     * The friendly name is the name that appears in Bluetooth settings.
+     *
+     * Tip: You can also read `device.name` directly to avoid an async call,
+     * but that value is only set at connection time and won't reflect changes
+     * made by another app or command barcode.
+     *
+     * @returns The friendly name string (max 31 UTF-8 characters)
+     */
     getFriendlyName(): Promise<string>;
-    /** Set the device's friendly name. Max 31 UTF-8 characters. */
+    /**
+     * Set the device's friendly name.
+     * The friendly name is the name that appears in Bluetooth settings.
+     *
+     * @param name - The new friendly name (max 31 UTF-8 characters)
+     */
     setFriendlyName(name: string): Promise<void>;
-    /** Get the device's Bluetooth MAC address as a byte array */
+    /**
+     * Get the Bluetooth address of the device.
+     *
+     * @returns The Bluetooth MAC address as a 6-byte array
+     */
     getBluetoothAddress(): Promise<number[]>;
-    /** Get the device type (see CaptureDeviceType enum) */
+    /**
+     * Get the model of the device (see `CaptureDeviceType` enum).
+     *
+     * Tip: You can also read `device.type` directly to avoid an async call,
+     * but that value is only set at connection time.
+     *
+     * @returns A `CaptureDeviceType` value identifying the device model
+     */
     getDeviceType(): Promise<number>;
-    /** Get the device firmware version */
+    /**
+     * Get the firmware version of the device.
+     *
+     * @returns An object with version components: `major`, `middle`, `minor`, `build`,
+     * and optionally `year`, `month`, `day` for the firmware build date
+     */
     getFirmwareVersion(): Promise<{
         major: number;
         middle: number;
@@ -48,21 +89,52 @@ export declare class CaptureHelperDevice {
         month?: number;
         day?: number;
     }>;
-    /** Get the current battery level (0–100%) */
+    /**
+     * Get the current battery level of the device.
+     *
+     * Tip: Consider using {@link CaptureHelper} `onBatteryLevel` callback with
+     * `setNotifications` to subscribe to battery level change events instead of polling.
+     *
+     * @returns Battery percentage (0–100)
+     */
     getBatteryLevel(): Promise<number>;
-    /** Get the current power state (see PowerState enum) */
+    /**
+     * Get the current power state of the device (on battery, on cradle, on AC, etc.).
+     *
+     * Tip: Consider using {@link CaptureHelper} `onPowerState` callback with
+     * `setNotifications` to subscribe to power state events instead of polling.
+     *
+     * @returns A `PowerState` value
+     */
     getPowerState(): Promise<PowerState>;
-    /** Get the current buttons state (see ButtonsState enum) */
+    /**
+     * Get the current state of each button on the device (pressed/released).
+     *
+     * Tip: Consider using {@link CaptureHelper} `onButtons` callback with
+     * `setNotifications` to subscribe to button press/release events instead of polling.
+     *
+     * @returns A `Notifications` bitmask describing the button states
+     */
     getButtonsState(): Promise<Notifications>;
     /**
-     * Set the scan trigger.
-     * Use Trigger.Start to fire a scan, Trigger.Stop to abort,
-     * Trigger.Enable/Disable to enable or lock the physical button.
+     * Set the trigger of the device — can start or stop a read and enable or
+     * disable the physical trigger button on the device.
+     *
+     * @param trigger - One of the `Trigger` values:
+     *   - `Trigger.Start` — programmatically fire a scan
+     *   - `Trigger.Stop` — abort an ongoing scan
+     *   - `Trigger.Enable` — enable the physical trigger button
+     *   - `Trigger.Disable` — disable (lock) the physical trigger button
+     *   - `Trigger.ContinuousScan` — start continuous scanning mode
      */
     setTrigger(trigger: Trigger): Promise<void>;
     /**
-     * Get a data source (symbology or NFC tag type) by ID.
-     * Returns an object with { id, name, enabled } describing the current state.
+     * Get the status of a data source (symbology or NFC tag type).
+     * A data source describes a barcode symbology (e.g. EAN-13, QR Code) or
+     * an NFC tag type that the device can decode.
+     *
+     * @param dataSourceId - A `CaptureDataSourceID` constant identifying the symbology or tag type
+     * @returns An object with `id`, `name`, and `status` (`CaptureDataSourceStatus.Enabled` or `Disabled`)
      */
     getDataSource(dataSourceId: number): Promise<{
         id: number;
@@ -70,65 +142,195 @@ export declare class CaptureHelperDevice {
         status: CaptureDataSourceStatus;
     }>;
     /**
-     * Enable or disable a symbology or NFC tag type by ID.
-     * Use CaptureDataSourceID constants for the id.
+     * Enable or disable a data source (symbology or NFC tag type) on the device.
+     *
+     * @param dataSourceId - A `CaptureDataSourceID` constant identifying the symbology or tag type
+     * @param status - `CaptureDataSourceStatus.Enabled` or `CaptureDataSourceStatus.Disabled`
      */
-    setDataSource(dataSourceId: number, enabled: CaptureDataSourceStatus): Promise<void>;
-    /** Get the local decode action (beep/flash/rumble on good read) */
+    setDataSource(dataSourceId: number, status: CaptureDataSourceStatus): Promise<void>;
+    /**
+     * Get the local decode action of the device.
+     * The decode action determines how decoded data is acknowledged locally —
+     * with a beep, rumble, flash, or some combination of all three.
+     *
+     * @returns A `LocalDecodeAction` bitmask value
+     */
     getDecodeAction(): Promise<LocalDecodeAction>;
-    /** Set the local decode action (see LocalDecodeAction enum) */
+    /**
+     * Set the local decode action of the device.
+     * Controls the beep, rumble, and/or flash feedback when data is decoded.
+     *
+     * @param action - A `LocalDecodeAction` bitmask combining the desired feedback
+     */
     setDecodeAction(action: LocalDecodeAction): Promise<void>;
-    /** Get the local data acknowledgment mode (see DeviceDataAcknowledgment enum) */
+    /**
+     * Get the local device acknowledgment mode.
+     * When enabled, the device acknowledges decoded data as soon as it is decoded.
+     * When disabled, the device waits for the host to acknowledge decoded data and
+     * the trigger will be locked until acknowledgment is received or the trigger lock
+     * timeout has elapsed.
+     *
+     * @returns A `DeviceDataAcknowledgment` value
+     */
     getDataAcknowledgment(): Promise<DeviceDataAcknowledgment>;
-    /** Set the local data acknowledgment mode */
+    /**
+     * Set the local device acknowledgment mode.
+     * When enabled, the device acknowledges decoded data immediately.
+     * When disabled, the device waits for the host to acknowledge via
+     * {@link setDataConfirmation} and the trigger locks until acknowledgment
+     * is received or the trigger lock timeout elapses.
+     *
+     * @param mode - A `DeviceDataAcknowledgment` value (`On` or `Off`)
+     */
     setDataAcknowledgment(mode: DeviceDataAcknowledgment): Promise<void>;
     /**
-     * Acknowledge decoded data — required when DataConfirmationMode is ModeApp.
-     * Can also be called any time to give feedback to the user (e.g. red LED for bad scan).
+     * Send an acknowledgment to the device. Acknowledgment can either be
+     * positive (good scan) or negative (bad scan).
+     *
+     * Required when `DataConfirmationMode` is set to `ModeApp` on the
+     * {@link CaptureHelper} — otherwise the trigger stays locked after a scan.
+     * Can also be called at any time to give visual/audio/haptic feedback
+     * (e.g. red LED + error beep for an invalid barcode).
+     *
+     * @param led - LED feedback: `DataConfirmationLed.Green`, `.Red`, or `.None`
+     * @param beep - Beep feedback: `DataConfirmationBeep.Good`, `.Bad`, or `.None`
+     * @param rumble - Rumble feedback: `DataConfirmationRumble.Good`, `.Bad`, or `.None`
      */
     setDataConfirmation(led: DataConfirmationLed, beep: DataConfirmationBeep, rumble: DataConfirmationRumble): Promise<void>;
-    /** Get the current notification flags (see Notifications enum) */
+    /**
+     * Get the current notification subscriptions for the device.
+     * Notifications allow subscribing to events such as trigger press/release,
+     * power button press/release, power state change, and battery level change.
+     *
+     * @returns A `Notifications` bitmask of the currently subscribed events
+     */
     getNotifications(): Promise<Notifications>;
-    /** Set which events the device reports (battery, power, buttons, etc.) */
+    /**
+     * Set which events the device reports to the host.
+     * Subscribable events include trigger press/release, power button press/release,
+     * power state change, and battery level change.
+     *
+     * @param flags - A `Notifications` bitmask combining the desired event subscriptions.
+     *   Example: `Notifications.BatteryLevelChange | Notifications.PowerState`
+     */
     setNotifications(flags: Notifications): Promise<void>;
-    /** Get the current data output format (see DataFormat enum) */
+    /**
+     * Get the decoded data format of the device.
+     * The data format controls how scanned data is structured in the `onDecodedData` callback.
+     *
+     * @returns A `DataFormat` value (e.g. `DataFormat.Raw`, `DataFormat.TagTypeAndData`)
+     */
     getDataFormat(): Promise<DataFormat>;
-    /** Set the data output format (e.g. TagTypeAndData for NFC) */
+    /**
+     * Set the decoded data format of the device.
+     * For NFC devices, use `DataFormat.TagTypeAndData` to receive both the tag type
+     * and the payload in the `onDecodedData` callback.
+     *
+     * @param format - A `DataFormat` value
+     */
     setDataFormat(format: DataFormat): Promise<void>;
     /**
-     * Send a device-specific raw command and receive the response.
-     * Use only when you know the device's proprietary command set.
+     * Send an arbitrary get command to the device and receive the response.
+     * This is a low-level API for sending proprietary commands that are not
+     * exposed as typed methods. Use only when you know the device's command set.
+     *
+     * @param command - A byte array containing the raw command to send
+     * @returns The device's raw response as a byte array
      */
     getDeviceSpecificCommand(command: number[]): Promise<number[]>;
-    /** Get the stand (cradle) configuration (see StandConfig enum) */
+    /**
+     * Get the stand (cradle) configuration of the device.
+     * Controls the scanning behavior when the device is placed in a stand/cradle.
+     *
+     * @returns A `StandConfig` value
+     */
     getStandConfig(): Promise<StandConfig>;
-    /** Set the stand (cradle) configuration */
+    /**
+     * Set the stand (cradle) configuration of the device.
+     * Controls whether the device auto-scans when placed in a stand.
+     *
+     * @param config - A `StandConfig` value (e.g. `StandConfig.DetectMode`, `StandConfig.MobileMode`)
+     */
     setStandConfig(config: StandConfig): Promise<void>;
     /**
-     * Get the device timers.
-     * Returns: { triggerLockTimer, connectedPowerOffTimer, disconnectedPowerOffTimer }
-     * Times are in milliseconds (power timers) and 1/4 seconds (trigger lock timer).
+     * Get the timers for a scanner.
+     *
+     * Returns the timers for powering off when the device is connected or
+     * disconnected without any activity, and the trigger lock timeout used
+     * with remote acknowledgment.
+     *
+     * The byte layout of the response differs by device family:
+     * - **Bluetooth Classic**: 8 bytes — mask(2) + triggerLock(2) + disconnected(2) + connected(2)
+     * - **Bluetooth LE devices (S550, S370, D751, S721, S741)**: 4 bytes — padding(2) + disconnected(1) + connected(1)
+     *
+     * For Bluetooth LE devices, the single-byte encoding is:
+     * - 0x00 = disabled (always on)
+     * - 0x01–0x7F = 1–127 minutes
+     * - 0x80–0xFF = (value & 0x7F) × 15 minutes (quarter-hour increments, up to 32 hours)
+     *
+     * Returned values are always normalized to minutes regardless of device family.
+     *
+     * @returns An object with:
+     *   - `mask` — a `Timer` bitmask indicating which timers are active (0 for BLE devices)
+     *   - `triggerLockTimer` — timeout in 1/4 second units for locking the trigger (0 for BLE devices)
+     *   - `connectedPowerOffTimer` — timeout in minutes before powering off when connected to a host
+     *   - `disconnectedPowerOffTimer` — timeout in minutes before powering off when not connected to any host
      */
     getTimers(): Promise<{
+        mask: number;
         triggerLockTimer: number;
         connectedPowerOffTimer: number;
         disconnectedPowerOffTimer: number;
     }>;
     /**
-     * Set the device timers.
-     * @param mask - Which timers to apply (see Timer enum flags)
-     * @param connectedPowerOffTimer - Milliseconds before powering off when connected
-     * @param disconnectedPowerOffTimer - Milliseconds before powering off when disconnected
-     * @param triggerLockTimer - 1/4 seconds before locking trigger (used with app data confirmation)
+     * Set the timers for a scanner. The scanner needs to be powered cycle to take effect after setting timers.
+     *
+     * The byte layout sent to the device differs by device family:
+     * - **Bluetooth Classic**: 8 bytes — mask(2) + triggerLock(2) + disconnected(2) + connected(2)
+     * - **Bluetooth LE devices (S550, S370, D751, S721, S741)**: 4 bytes — pad(1) + disconnected(1) + pad(1) + connected(1)
+     *
+     * For Bluetooth Classic, the mask determines which values should be applied.
+     * NOTE: on the 700 series (excluding 750) the trigger lock out timer cannot
+     * be set at the same time as the connected or disconnected power off timer.
+     *
+     * For Bluetooth LE devices, the single-byte encoding is:
+     * - 0x00 = disabled (always on)
+     * - 0x01–0x7F = 1–127 minutes
+     * - 0x80–0xFF = (value & 0x7F) × 15 minutes (quarter-hour increments, up to 32 hours)
+     *
+     * For Bluetooth LE devices, the mask and triggerLockTimer parameters are ignored.
+     * All values are in minutes. For Bluetooth LE devices, values >127 min are encoded
+     * as quarter-hour increments automatically.
+     *
+     * @param mask - A `Timer` bitmask selecting which timers to apply (Classic only)
+     * @param connectedPowerOffTimer - Timeout in minutes before powering off when connected to a host
+     * @param disconnectedPowerOffTimer - Timeout in minutes before powering off when not connected to any host
+     * @param triggerLockTimer - Timeout in 1/4 second units for locking the trigger (Classic only)
      */
     setTimers(mask: Timer, connectedPowerOffTimer: number, disconnectedPowerOffTimer: number, triggerLockTimer: number): Promise<void>;
-    /** Disconnect the BLE device (makes it available for reconnect) */
+    /**
+     * Instruct the device to drop its Bluetooth connection.
+     * The device becomes available for reconnection.
+     *
+     * Note: After sending this command, the host will be unable to send any
+     * subsequent commands to this device until it reconnects.
+     */
     setDisconnect(): Promise<void>;
-    /** Factory reset the device */
+    /**
+     * Reset all the settings on the device to their factory default values.
+     * This includes symbology settings, preamble, postamble, friendly name, timers, etc.
+     */
     setFactoryReset(): Promise<void>;
-    /** Power cycle (reset) the device. If on power, it reboots; otherwise it powers off. */
+    /**
+     * Power cycle a Bluetooth LE device.
+     * When the device is on a power source (e.g. charging), it reboots.
+     * Otherwise it simply powers off.
+     */
     setReset(): Promise<void>;
-    /** Power off the device */
+    /**
+     * Turn the device off.
+     * The device will need to be manually powered on again to reconnect.
+     */
     setPowerOff(): Promise<void>;
 }
 export {};

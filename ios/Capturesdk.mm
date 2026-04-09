@@ -259,11 +259,9 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             @throw exception;
         }
         if(handle == (NSInteger)_capture){
-            NSLog(@"CaptureSDK: Using Valid ROOT CAPTURE Handle");
             object = _capture;
         }
         else if( [self GetDeviceWithHandle:handle] != nil){
-            NSLog(@"CaptureSDK: Using Valid DEVICE CAPTURE Handle");
             object = [self GetDeviceWithHandle:handle];
         }
         else {
@@ -277,7 +275,7 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
         property = [self ConvertToPropertyFromJsonRpcProperty:jsonRpcProperty];
         [object getProperty:property completionHandler:^(SKTResult result, SKTCaptureProperty *property) {
             NSString* response;
-            if(SKTSUCCESS(result)){
+            if(SKTSUCCESS(result) || result == SKTCaptureE_CANCEL){
                 response = [self returnJsonRpcWithHandle:handle withProperty: property withId:jsonRpcId];
             }
             else {
@@ -319,7 +317,7 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
         property = [self ConvertToPropertyFromJsonRpcProperty:jsonRpcProperty];
         [object setProperty:property completionHandler:^(SKTResult result, SKTCaptureProperty *property) {
             NSString* response;
-            if(SKTSUCCESS(result)){
+            if(SKTSUCCESS(result) || result == SKTCaptureE_CANCEL){
                 response = [self returnJsonRpcWithHandle:handle withProperty: property withId:jsonRpcId];
             }
             else {
@@ -404,9 +402,21 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
         case SKTCapturePropertyTypeUlong:
             property.ULongValue = [[jsonRpcProperty objectForKey:@"value"] integerValue];
             break;
-        case SKTCapturePropertyTypeArray:
-            property.ArrayValue = [jsonRpcProperty objectForKey:@"value"];
+        case SKTCapturePropertyTypeArray: {
+            id rawValue = [jsonRpcProperty objectForKey:@"value"];
+            if ([rawValue isKindOfClass:[NSArray class]]) {
+                NSArray<NSNumber *> *numbers = (NSArray<NSNumber *> *)rawValue;
+                NSMutableData *data = [NSMutableData dataWithLength:numbers.count];
+                uint8_t *bytes = (uint8_t *)data.mutableBytes;
+                for (NSUInteger i = 0; i < numbers.count; i++) {
+                    bytes[i] = (uint8_t)[numbers[i] unsignedCharValue];
+                }
+                property.ArrayValue = data;
+            } else {
+                property.ArrayValue = rawValue;
+            }
             break;
+        }
         case SKTCapturePropertyTypeString:
             property.StringValue = [jsonRpcProperty objectForKey:@"value"];
             break;
@@ -528,7 +538,7 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
             [json appendFormat:@", \"value\": %d }}", event.Data.ByteValue];
             break;
         case SKTCaptureEventDataTypeUlong:
-            [json appendFormat:@", \"value\": %lu }}", event.Data.ULongValue];
+            [json appendFormat:@", \"value\": %ld }}", (long)event.Data.ULongValue];
             break;
         case SKTCaptureEventDataTypeArray:
             [json appendFormat:@", \"value\": %@ }}", [self ConvertToStringFromData:event.Data.ArrayValue]];

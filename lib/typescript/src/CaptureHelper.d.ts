@@ -78,6 +78,10 @@ export declare class CaptureHelper {
     /**
      * Close the CaptureSDK and release all resources.
      * Call in componentWillUnmount or when the app goes to background.
+     * We do not recommend closing and reopening the SDK multiple times per session,
+     * but this method can be called followed by open() to restart the SDK if needed.
+     * The transition of the app from foreground to background does not affect the SDK state, so open() only needs to be called once per session unless you want to explicitly restart the SDK with close() followed by open().
+     * After calling close(), the CaptureHelper instance cannot be used until open() is called again.
      */
     close(): Promise<void>;
     /** Returns the list of currently connected devices */
@@ -94,53 +98,87 @@ export declare class CaptureHelper {
     private _set;
     private _setBle;
     private _getBle;
-    /** Get the CaptureSDK version */
+    /**
+     * Get the Capture service version.
+     *
+     * @returns An object with `major`, `minor`, and `build` version numbers
+     */
     getVersion(): Promise<{
         major: number;
         minor: number;
         build: number;
     }>;
     /**
-     * Show or hide the SocketCam symbology selector menu.
-     * When disabled, the end user cannot change enabled symbologies from the SocketCam view.
+     * Set the Capture configuration to show or hide the SocketCam symbology selector menu.
+     * When disabled, the end user cannot change which symbologies are enabled
+     * from the SocketCam camera view.
+     *
+     * @param disabled - `true` to hide the symbology selector, `false` to show it
      */
     setSocketCamSymbologySelectorDisabled(disabled: boolean): Promise<void>;
-    /** Get the current SocketCam enabled/disabled status as a raw byte value */
+    /**
+     * Get the current SocketCam status (enabled or disabled).
+     *
+     * @returns A `SocketCam` value (`SocketCam.Enable` or `SocketCam.Disable`)
+     */
     getSocketCamEnabled(): Promise<any>;
     /**
-     * Enable or disable the SocketCam virtual device (Android + iOS).
-     * When enabled, a DeviceArrival event fires for the SocketCam device.
-     * When disabled, a DeviceRemoval event fires.
+     * Enable or disable the SocketCam virtual device.
+     * SocketCam uses the device's built-in camera as a barcode scanner.
      *
-     * Android note: enabling requires the SocketCam extension APK to be installed.
+     * When enabled, an `onDeviceArrival` event fires for the SocketCam device.
+     * When disabled, an `onDeviceRemoval` event fires.
+     *
+     * Note (Android): Enabling requires the SocketCam extension to be installed.
+     *
+     * @param enabled - `true` to enable SocketCam, `false` to disable it
      */
     setSocketCamEnabled(enabled: boolean): Promise<void>;
     /**
-     * Start BLE discovery or launch the iOS Bluetooth Classic picker.
-     * Listen for discovered devices via the onDiscoveredDevice callback.
-     * When discovery ends, onDiscoveryEnd is called.
+     * Add a Bluetooth device by starting BLE discovery or launching the
+     * iOS Bluetooth Classic picker.
      *
-     * @param mode - 1 for Bluetooth LE, 2 for Bluetooth Classic
+     * Listen for discovered devices via the `onDiscoveredDevice` callback.
+     * When discovery ends, `onDiscoveryEnd` is called.
+     *
+     * @param mode - A `BluetoothDiscoveryMode` value:
+     *   - `1` — Bluetooth Low Energy (BLE) discovery
+     *   - `2` — Bluetooth Classic
      */
     addBluetoothDevice(mode: BluetoothDiscoveryMode): Promise<void>;
     /**
-     * Connect to a BLE device found during discovery.
-     * Requires DeviceManagerArrival to have fired (BLE device manager must be available).
-     * On success, onDeviceArrival will fire with the connected CaptureHelperDevice.
+     * Connect to a BLE device found during discovery via the Device Manager.
+     * Requires `DeviceManagerArrival` to have fired (the BLE device manager
+     * must be available).
+     *
+     * On success, `onDeviceArrival` fires with the connected `CaptureHelperDevice`.
+     *
+     * @param device - The `DiscoveredDeviceInfo` received from the `onDiscoveredDevice` callback
      */
     connectDiscoveredDevice(device: DiscoveredDeviceInfo): Promise<void>;
     /**
-     * Remove a connected BLE discovered device.
+     * Remove a Bluetooth device (Classic or Low Energy).
+     * This unpairs the device from the host. A `DeviceRemoval` event fires when complete.
      *
-     * The device's native CaptureSDK handle is closed in the subsequent DeviceRemoval
-     * event handler, not here — closing before the SDK disconnect corrupts SDK state.
+     * The device's native CaptureSDK handle is closed in the subsequent `onDeviceRemoval`
+     * callback, not here — closing before the SDK disconnect would corrupt SDK state.
+     *
+     * @param device - The `CaptureHelperDevice` to remove
      */
     removeBleDevice(device: CaptureHelperDevice): Promise<void>;
-    /** Disconnect from a connected BLE device (by its discovered device info) */
+    /**
+     * Disconnect from a BLE device that was connected via {@link connectDiscoveredDevice}.
+     * Uses the Device Manager to drop the connection.
+     *
+     * @param device - The `DiscoveredDeviceInfo` identifying the device to disconnect
+     */
     disconnectFromDiscoveredDevice(device: DiscoveredDeviceInfo): Promise<void>;
     /**
-     * Get the unique identifier string for a BLE device from its GUID.
-     * Useful for building persistent device associations.
+     * Get the BLE unique device identifier that can be used to set a device as favorite.
+     * Useful for building persistent device associations across sessions.
+     *
+     * @param deviceGuid - The GUID of the device (from `CaptureHelperDevice.guid`)
+     * @returns A unique identifier string for the BLE device
      */
     getDeviceUniqueIdentifier(deviceGuid: string): Promise<string>;
 }
