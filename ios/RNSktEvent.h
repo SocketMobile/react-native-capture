@@ -1,14 +1,16 @@
 //
-//  SktEvent.h
+//  RNSktEvent.h
 //  Capture
 //
 //  Created by Eric Glaenzer on 8/25/11.
 //  Copyright 2011 SocketMobile. All rights reserved.
 //
+// Local copy of the Capture event helper, prefixed RN so its classes cannot
+// collide with the ones embedded in CaptureSDK.framework.
 #import <CaptureSDK/CaptureSDK.h>
 #import <Foundation/Foundation.h>
 
-@interface SktEventInfo : NSObject
+@interface RNSktEventInfo : NSObject
 {
     NSConditionLock *_lock;
     BOOL _signaled;
@@ -22,10 +24,10 @@
 
 @end
 
-@interface SktEvent : NSObject
+@interface RNSktEvent : NSObject
 {
-    SktEventInfo *_eventInfo;
-    SktEventInfo *_eventDelegateLock;
+    RNSktEventInfo *_eventInfo;
+    RNSktEventInfo *_eventDelegateLock;
     NSString *_name;
     BOOL _automatic;
     enum

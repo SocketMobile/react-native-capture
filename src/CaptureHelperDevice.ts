@@ -38,6 +38,19 @@ export interface CaptureHelperDeviceInfo {
 }
 
 /**
+ * Functions a device can support (barcode scanner, NFC reader, NFC writer).
+ * Matches `SKTCaptureDeviceFunction` (iOS) — encoded in bits 8–13 of the device type.
+ * Not yet exported from socketmobile-capturejs main entry — defined here for SDK consumers.
+ */
+export enum CaptureDeviceTypeFunction {
+  Legacy = 0,
+  Scanner = 1,
+  NFCReader = 2,
+  NFCWriter = 4,
+  Unknown = 8,
+}
+
+/**
  * Wraps a connected device's CaptureRn with typed property methods.
  * Created automatically by CaptureHelper — never instantiated by developers.
  *
@@ -176,6 +189,52 @@ export class CaptureHelperDevice {
    */
   async getDeviceType(): Promise<number> {
     return this.type;
+  }
+
+  /**
+   * Tells if a given device type supports the given functions.
+   *
+   * @param deviceType - A `CaptureDeviceType` value
+   * @param functions - A `CaptureDeviceTypeFunction` bitmask (scanner, NFC reader,
+   *   NFC writer, or a combination of several)
+   * @returns true if the device supports at least one of the given functions
+   */
+  static deviceSupportsFunctions(
+    deviceType: number,
+    functions: CaptureDeviceTypeFunction
+  ): boolean {
+    let deviceFunction = (deviceType >> 8) & 0x3f;
+    if (deviceFunction === CaptureDeviceTypeFunction.Legacy) {
+      // Legacy device types don't encode their functions: the D600 and S550
+      // are NFC readers/writers, every other legacy device is a barcode scanner.
+      if (
+        deviceType === CaptureDeviceType.ScannerD600 ||
+        deviceType === CaptureDeviceType.NFCS370 ||
+        deviceType === CaptureDeviceType.ScannerS550
+      ) {
+        deviceFunction =
+          CaptureDeviceTypeFunction.NFCReader | CaptureDeviceTypeFunction.NFCWriter;
+      } else {
+        deviceFunction = CaptureDeviceTypeFunction.Scanner;
+      }
+    }
+    return (deviceFunction & functions) !== 0;
+  }
+
+  /** Tells if this device is a barcode reader */
+  get isBarcodeReader(): boolean {
+    return CaptureHelperDevice.deviceSupportsFunctions(
+      this.type,
+      CaptureDeviceTypeFunction.Scanner
+    );
+  }
+
+  /** Tells if this device is a NFC reader */
+  get isNFCReader(): boolean {
+    return CaptureHelperDevice.deviceSupportsFunctions(
+      this.type,
+      CaptureDeviceTypeFunction.NFCReader
+    );
   }
 
   /**

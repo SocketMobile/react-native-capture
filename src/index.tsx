@@ -53,7 +53,10 @@ import {
 } from 'socketmobile-capturejs';
 
 import CaptureHelper from './CaptureHelper';
-import { CaptureHelperDevice } from './CaptureHelperDevice';
+import {
+  CaptureHelperDevice,
+  CaptureDeviceTypeFunction,
+} from './CaptureHelperDevice';
 
 const LINKING_ERROR =
   `The package 'react-native-capture' doesn't seem to be linked. Make sure: \n\n` +
@@ -391,6 +394,7 @@ export {
   // These are the helper methods for the Developer
   CaptureHelper,
   CaptureHelperDevice,
+  CaptureDeviceTypeFunction,
   // Architecture detection utility
   CaptureArchitectureInfo,
 };

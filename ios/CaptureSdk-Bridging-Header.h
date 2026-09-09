@@ -6,5 +6,5 @@
 #import <React/RCTViewManager.h>
 #import <React/RCTUIManager.h>
 #import <CaptureSDK/CaptureSDK.h>
-#import "SktEvent.h"
+#import "RNSktEvent.h"
 #import "CaptureSdkSpec.h"

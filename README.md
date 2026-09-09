@@ -1,4 +1,4 @@
-# React Native CaptureSDK - Version 2.0.24
+# React Native CaptureSDK - Version 2.1.8
 
 This React Native module allows a React Native application to use and control Socket Mobile wireless barcode scanners, NFC Reader/Writer, and Camera to capture and deliver data capture to such application.
 
@@ -6,21 +6,26 @@ The React Native CaptureSDK fully supports the React Native new architecture.
 
 ## Devices compatibility and CaptureSDK versions
 
-|                    Devices                     | < 2.0 | 2.0 |
-| :--------------------------------------------: | :---: | :-: |
-|               **SocketCam C860**               |  ✅   | ✅  |
-|               **SocketCam C820**               |  ✅   | ✅  |
-|               **S720/D720/S820**               |  ✅   | ✅  |
-| **D600, S550, and all other barcode scanners** |  ✅   | ✅  |
-|                    **S370**                    |  ✅   | ✅  |
-|                    **S320**                    |  ✅   | ✅  |
-|  **S721 (new Bluetooth LE barcode scanner)**   |  ❌   | ✅  |
+|                    Devices                     | < 2.0 | 2.0 | 2.1 |
+| :--------------------------------------------: | :---: | :-: | :-: |
+|               **SocketCam C860**               |  ✅   | ✅  | ✅  |
+|               **SocketCam C820**               |  ✅   | ✅  | ✅  |
+|               **S720/D720/S820**               |  ✅   | ✅  | ✅  |
+| **D600, S550, and all other barcode scanners** |  ✅   | ✅  | ✅  |
+|                    **S370**                    |  ✅   | ✅  | ✅  |
+|                    **S320**                    |  ✅   | ✅  | ✅  |
+|  **S721 (new Bluetooth LE barcode scanner)**   |  ❌   | ✅  | ✅  |
+|  **SM Link and Magick Dock**                   |  ❌   | ❌  | ✅  |
 
-## What's new in version 2.0
+## What's new in version 2.1
+
+### SM Link and Magic Dock
+
+Those USB-C devices allows you to connect our Bluetooth Low Energy scanners directly to a device without any additional line of code other than implementing the current React Native SDK. It handles the connection and you can use our scanners out of the box.
 
 ### CaptureHelper — a simpler way to integrate
 
-Version 2.0 introduces **`CaptureHelper`**, a high-level lifecycle manager that replaces the manual `CaptureRn` + `onCaptureEvent` switch/case pattern. Instead of constructing `CaptureProperty` objects and interpreting raw events yourself, you create a `CaptureHelper` instance with typed callbacks and call named methods.
+Version 2.1 introduces **`CaptureHelper`**, a high-level lifecycle manager that replaces the manual `CaptureRn` + `onCaptureEvent` switch/case pattern. Instead of constructing `CaptureProperty` objects and interpreting raw events yourself, you create a `CaptureHelper` instance with typed callbacks and call named methods.
 
 ```typescript
 import {

@@ -1,5 +1,27 @@
 # Changelog
 
+## Version 2.1.8
+
+### New
+
+  * We have added a new way of connecting to our Bluetooth LE scanners with SM Link and Magic Dock
+
+
+
+### Improvements
+
+  * We have updated [Android CaptureSDK to 2.1.8](https://github.com/SocketMobile/android-capturesdk/releases/tag/v2.1.8)
+
+  * We have updated [iOS CaptureSDK to 2.1.22](https://github.com/SocketMobile/cocoapods-capturesdk/releases/tag/2.1.22)
+
+
+
+### Bug fixes
+
+  * We have fixed our Changelog including all the past missing versions
+
+
+
 ## Version 2.0.24
 
 ### New
@@ -23,6 +45,60 @@
 
   * We have fixed the [issue for data confirmation](https://github.com/SocketMobile/react-native-capture/issues/22)
 
+
+# Version 2.0.16
+
+### New
+
+  * N/A
+
+### Improvements
+
+  * We have update [Android CaptureSDK to 2.0.17](https://github.com/SocketMobile/android-capturesdk/releases/tag/v2.0.17)
+
+  * We have update [iOS CaptureSDK to 2.0.67](https://github.com/SocketMobile/cocoapods-capturesdk/releases/tag/2.0.67)
+
+### Bug fixes
+
+  * We have fixed a [build error on old React Native architecture](https://github.com/SocketMobile/react-native-capture/issues/20)
+
+
+## Version 2.0.13
+
+### New
+
+  * N/A
+
+
+### Improvements
+
+  * N/A
+
+
+### Bug fixes
+
+  * We have fixed the connection and disconnection for Bluetooth LE devices on Android
+
+
+## Version 2.0.11
+
+### New
+
+  * We have added the support of our brand new scanner Bluetooth Low Energy S721
+
+  * We have added a CaptureHelper to abstract our properties and devices objects
+
+### Improvements
+
+  * We have improved our SocketCam component
+
+  * We have updated [Android CaptureSDK](https://github.com/SocketMobile/android-capturesdk) to `v2.0.1`
+
+  * We have updated [iOS CaptureSDK](https://github.com/SocketMobile/cocoapods-capturesdk) to `v2.0.63`
+
+  * We have updated [CaptureJS](https://github.com/SocketMobile/socketmobile-capturejs) to `v2.0.2`
+
+  * We have updated `react-native` to `v0.83.1` and `react` to `v19.2.0`
 
 
 ## Version 1.5.137

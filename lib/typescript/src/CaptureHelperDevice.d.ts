@@ -12,6 +12,18 @@ export interface CaptureHelperDeviceInfo {
     handle: number;
 }
 /**
+ * Functions a device can support (barcode scanner, NFC reader, NFC writer).
+ * Matches `SKTCaptureDeviceFunction` (iOS) — encoded in bits 8–13 of the device type.
+ * Not yet exported from socketmobile-capturejs main entry — defined here for SDK consumers.
+ */
+export declare enum CaptureDeviceTypeFunction {
+    Legacy = 0,
+    Scanner = 1,
+    NFCReader = 2,
+    NFCWriter = 4,
+    Unknown = 8
+}
+/**
  * Wraps a connected device's CaptureRn with typed property methods.
  * Created automatically by CaptureHelper — never instantiated by developers.
  *
@@ -74,6 +86,19 @@ export declare class CaptureHelperDevice {
      * @returns A `CaptureDeviceType` value identifying the device model
      */
     getDeviceType(): Promise<number>;
+    /**
+     * Tells if a given device type supports the given functions.
+     *
+     * @param deviceType - A `CaptureDeviceType` value
+     * @param functions - A `CaptureDeviceTypeFunction` bitmask (scanner, NFC reader,
+     *   NFC writer, or a combination of several)
+     * @returns true if the device supports at least one of the given functions
+     */
+    static deviceSupportsFunctions(deviceType: number, functions: CaptureDeviceTypeFunction): boolean;
+    /** Tells if this device is a barcode reader */
+    get isBarcodeReader(): boolean;
+    /** Tells if this device is a NFC reader */
+    get isNFCReader(): boolean;
     /**
      * Get the firmware version of the device.
      *

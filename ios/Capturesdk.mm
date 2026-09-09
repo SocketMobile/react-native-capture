@@ -1,5 +1,5 @@
 #import "CaptureSdk.h"
-#import "SktEvent.h"
+#import "RNSktEvent.h"
 #import <CaptureSDK/CaptureSDK.h>
 #import <React/RCTUtils.h>
 #import <React/RCTViewManager.h>
@@ -12,7 +12,7 @@
     SKTCapture *_capture;
     NSMutableDictionary *_devices;
     BOOL _hasListeners;
-    SktEvent *openCompleteEvent;
+    RNSktEvent *openCompleteEvent;
     UIView *socketCamView;
 
 }
@@ -59,7 +59,7 @@ RCT_EXPORT_METHOD(openTransport:(NSString *)host
     resolver:(RCTPromiseResolveBlock)resolve
     rejecter:(RCTPromiseRejectBlock)reject)
 {
-    openCompleteEvent = [SktEvent new];
+    openCompleteEvent = [RNSktEvent new];
     NSNumber* handle = [NSNumber numberWithLong:(long) self];
     resolve(@{@"transport":@{@"handle": handle}});
 }
@@ -629,6 +629,12 @@ RCT_EXPORT_METHOD(getTargetView : (nonnull NSNumber *)reactTag)
  @param result contains the result of receiving this event
  */
 -(void)didReceiveEvent:(SKTCaptureEvent*)event forCapture:(SKTCapture*)capture withResult:(SKTResult)result {
+    // ESKT_LISTEMPTY notifications are internal to Capture and not relevant to applications
+    if (event.ID == SKTCaptureEventIDError
+        && event.Data.Type == SKTCaptureEventDataTypeUlong
+        && (long)event.Data.ULongValue == SKTCaptureE_LISTEMPTY) {
+        return;
+    }
     if(_hasListeners){
         [openCompleteEvent waitEvent:5000];
         NSString* jsonEvent = [self ConvertToJsonRpcEventFromEvent: event fromCapture: capture];

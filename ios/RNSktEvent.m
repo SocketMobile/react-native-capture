@@ -1,16 +1,16 @@
 //
-//  SktEvent.m
+//  RNSktEvent.m
 //  Capture
 //
 //  Created by Eric Glaenzer on 8/25/11.
 //  Copyright 2011 SocketMobile. All rights reserved.
 //
 #import <CaptureSDK/CaptureSDK.h>
-#import "SktEvent.h"
+#import "RNSktEvent.h"
 
-NSMutableDictionary* gNamedEvent=nil;
+static NSMutableDictionary* gNamedEvent=nil;
 
-@implementation SktEventInfo
+@implementation RNSktEventInfo
 
 @synthesize lock=_lock;
 @synthesize signaled=_signaled;
@@ -38,7 +38,7 @@ NSMutableDictionary* gNamedEvent=nil;
 }
 @end
 
-@implementation SktEvent
+@implementation RNSktEvent
 
 
 -(id)init{
@@ -60,8 +60,8 @@ NSMutableDictionary* gNamedEvent=nil;
         result=SKTCaptureE_ALREADYEXISTING;
     if(SKTSUCCESS(result)){
         _automatic = automatic;
-        _eventInfo = [[SktEventInfo alloc]initWithCondition:EVENT_NOT_SIGNALED];
-        _eventDelegateLock = [SktEventInfo new];
+        _eventInfo = [[RNSktEventInfo alloc]initWithCondition:EVENT_NOT_SIGNALED];
+        _eventDelegateLock = [RNSktEventInfo new];
         _name=nil;
 
     }
@@ -91,8 +91,8 @@ NSMutableDictionary* gNamedEvent=nil;
         @finally {
         }
         if(_eventInfo==nil){
-            _eventInfo=[[SktEventInfo alloc]initWithCondition:EVENT_NOT_SIGNALED];
-            _eventDelegateLock = [SktEventInfo new];
+            _eventInfo=[[RNSktEventInfo alloc]initWithCondition:EVENT_NOT_SIGNALED];
+            _eventDelegateLock = [RNSktEventInfo new];
             @try {
                 [gNamedEvent setValue:_eventInfo forKey:name];
             }

@@ -1,7 +1,7 @@
 import SocketCamViewContainer from './components/SocketCamViewContainer';
 import { Capture, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, type AppInfo, JRpcError, type DeviceInfo, type DiscoveredDeviceInfo, SocketCam, type Logger } from 'socketmobile-capturejs';
 import CaptureHelper from './CaptureHelper';
-import { CaptureHelperDevice } from './CaptureHelperDevice';
+import { CaptureHelperDevice, CaptureDeviceTypeFunction } from './CaptureHelperDevice';
 declare const CaptureSdk: any;
 declare type Notification = (event: CaptureEvent<any>, handle?: number) => void;
 interface AppInfoRn {
@@ -93,6 +93,6 @@ interface CaptureDiscoveredDeviceInfo extends CaptureRn {
     serviceUuid: string;
 }
 export { CaptureRn, SktErrors, CapturePropertyIds, CapturePropertyTypes, CaptureProperty, CaptureEventIds, CaptureEventTypes, CaptureEvent, CaptureDeviceType, CaptureDataSourceID, CaptureDataSourceFlags, CaptureDataSourceStatus, DataConfirmationMode, DeviceDataAcknowledgment, SecurityMode, Trigger, DeletePairing, SoundActionType, SoundFrequency, RumbleActionType, LocalDecodeAction, DataConfirmationLed, DataConfirmationBeep, DataConfirmationRumble, Flash, PowerState, MonitorDbg, Counter, Disconnect, ProfileSelect, ProfileConfig, Timer, DataFormat, TriggerMode, ConnectReason, StartUpRoleSpp, ConnectBeepConfig, StandConfig, BluetoothDiscoveryMode, SinglePartnership, JRpcError, SocketCam, SocketCamTypes, BluetoothLEDeviceTypes, SocketCamViewContainer, CaptureSdk, // Native Modules
-CaptureHelper, CaptureHelperDevice, CaptureArchitectureInfo, };
+CaptureHelper, CaptureHelperDevice, CaptureDeviceTypeFunction, CaptureArchitectureInfo, };
 export type { Notification, DeviceInfo, DiscoveredDeviceInfo, AppInfoRn, DeviceGuidMap, DecodedData, ExtensionEventData, CaptureDeviceInfo, CaptureDiscoveredDeviceInfo, SocketLogger, };
 //# sourceMappingURL=index.d.ts.map

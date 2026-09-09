@@ -110,7 +110,7 @@ dependencies {
     implementation "com.facebook.react:react-native:+"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "com.google.zxing:core:3.5.1"
-    api "com.socketmobile:capture-socketcam:2.0.17"
+    api "com.socketmobile:capture-socketcam:2.1.8"
     
     // New Architecture (TurboModule) dependencies
     if (isNewArchitectureEnabled()) {
